@@ -1,0 +1,104 @@
+{
+    "step_1_patient_basic_info": {
+        "diagnosed_year": "【直接提供】来自 workup 信息",
+        "age_at_diagnosis": "【直接提供】来自 workup 信息",
+        "gender": "【直接提供】来自 workup 信息",
+        "smoking_status": "【直接提供】来自 workup 信息",
+        "primarily_metastasis": "【直接提供】来自 workup 信息",
+        "primary_tumor_site": "【直接提供】来自 workup 信息",
+        "hpv_association_p16": "【直接提供】仅口咽癌直接给出，其他不提供",
+        "icd_code": "【直接提供】来自手术报告：Diagnosis / ICD codes",
+        "describe_focus": "【直接提供】由病史、手术报告和pT pN给出大致范围。",
+
+        "cT_stage": "【模型推理】来自 workup 信息",
+        "cT_stage_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "cN_stage": "【模型推理】来自 workup 信息",
+        "cN_stage_evidence":"【模型推理】若能得出给出具体依据推理"
+    },
+
+    "step_2_clinical_treatment_decision": {
+        "guideline_reasoning_chain": "【模型推理】基于临床分期、p16性质（仅口咽癌）结合NCCN决策树生成",
+        "recommended_primary_treatment": "【模型推理】须包含具体治疗选项（指南给出的符合患者的都应给出，指南标明推荐状况的也应标出）",
+        "clinical_treatment_decision_evidence": "【模型推理】若能得出给出具体依据推理"
+    },
+
+    "step_3_surgery_report_extraction": {
+        "number_of_positive_lymph_nodes": "【直接提供】作为病理判断背景加入手术报告中提供",
+        "number_of_resected_lymph_nodes": "【直接提供】作为病理判断背景加入手术报告中提供",
+        "tests and treatments ": "【直接提供】初步诊断简述",
+        "medical history": "【直接提供】病史,清洗掉明确的pTpN信息",
+        "surgery report": "【直接提供】手术报告,清洗掉明确的pTpN、辅助治疗判断信息",
+        "results of laboratory tests":  "【直接提供】患者手术过程中进行的实验室检测结果。对于每项分析物，均给出了相应的参数组和LOINC代码。",
+
+        "preliminary_pT_stage": "【初步提取】先由手术报告得出,给出能否得出，能的话是什么",
+        "preliminary_pT_stage_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "preliminary_pN_stage": "【初步提取】先由手术报告得出,给出能否得出，能的话是什么",
+        "preliminary_pN_stage_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "preliminary_resection_status": "【初步提取】先由手术报告得出,给出能否得出，能的话是什么",
+        "preliminary_resection_status_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "preliminary_histologic_type": "【初步提取】先由手术报告得出,给出能否得出，能的话是什么",
+        "preliminary_histologic_type_evidence":"【模型推理】若能得出给出具体依据推理"
+    },
+
+    "step_4_wsi_slide_update": {
+        "说明":"部分患者由于病情等原因无淋巴结切片，视人任务设计而定是提前告知mllm切片缺失或等待mllm提出索要切片后告知",
+
+        "updated_pT_stage": "【更新节点】根据对切片的观察进行判断更新",
+        "updated_pT_stage_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "updated_pN_stage": "【更新节点】根据对切片的观察进行判断更新",
+        "updated_pN_stage_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "updated_resection_status": "【更新节点】结合 HE 切片更新 (R0/R1)",
+        "updated_resection_status_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "updated_histologic_type": "【更新节点】结合 HE 切片更新",
+        "updated_histologic_type_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "perineural_invasion_Pn": "【切片提取】手术报告 + HE 染色切片得出",
+        "perineural_invasion_Pn_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "lymphovascular_invasion_L": "【切片提取】手术报告 + HE 染色切片得出",
+        "lymphovascular_invasion_L_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "vascular_invasion_V": "【切片提取】手术报告 + HE 染色切片得出",
+        "vascular_invasion_V_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "grading_hpv": "【切片提取】观察 HE 染色切片得出 (核异型性等)",
+        "grading_hpv_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "carcinoma_in_situ": "【切片提取】观察 HE 染色切片得出",
+        "carcinoma_in_situ_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "resection_status_carcinoma_in_situ": "【切片提取】手术报告 + HE 染色切片得出",
+        "resection_status_carcinoma_in_situ_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "infiltration_depth_in_mm": "【切片提取】在带比例尺的 WSI 上测量",
+        "infiltration_depth_in_mm_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "closest_resection_margin_in_cm": "【切片提取 / 阶段补充】尝试从 HE 切片观察；",
+        "closest_resection_margin_in_cm_evidence":"【模型推理】若能得出给出具体依据推理",
+
+        "perinodal_invasion": "【切片提取】手术报告 + HE 染色切片得出",
+        "perinodal_invasion_evidence":"【模型推理】若能得出给出具体依据推理"
+    },
+
+    "补充信息":"上述信息若存在因数据集原因（pN未记录（为pNX）、）无法得出，在进入 Step5前由 Benchmark 告知模型",
+
+    "step_5_adjuvant_treatment_decision": {
+        "alignment_summary_narrative": "【模型推理】汇总临床与最终病理数据，考察记忆与推理",
+        "adverse_features_check_reasoning": "【模型推理】根据病理阶段信息及是否有不良病理特征进行判断",
+        "guideline_decision_chain": "【模型推理】应用辅助治疗指南决策树",
+        "adjuvant_treatment_intent": "【模型推理】y/n，若原数据集未给出则视为 no 并告知被测模型",
+        "adjuvant_radiotherapy_y_n": "【模型推理】基于不良特征决定",
+        "adjuvant_radiotherapy_type": "【模型推理】具体方式；部分患者未给出，仅对给出的患者提问y/n",
+        "adjuvant_systemic_therapy_y_n": "【模型推理】基于不良特征决定",
+        "adjuvant_systemic_therapy_mode": "【模型推理】具体模式；部分患者未给出，仅对给出的患者提问y/n",
+        "adjuvant_chemoradiotherapy_y_n": "【模型推理】基于不良特征决定",
+        "analysis_reasoning_chain": "【模型推理】需标明上述决策的所有证据"
+    }
+}

@@ -1,0 +1,100 @@
+{
+    "step_1_patient_basic_info": {
+        "diagnosed_year": "2015 ",
+        "age_at_diagnosis": "65",
+        "gender": "male",
+        "smoking_status": "former",
+        "primarily_metastasis": "no",
+        "primary_tumor_site": "Hypopharynx",
+        "hpv_association_p16": "not_tested ",
+        "icd_code": "C13.9, C32.9, C77.0 B",
+        "describe_focus": "CT示原发灶侵犯声门旁间隙或推挤软骨，伴同侧颈部多发肿大淋巴结（最大径≤6cm）；超声可见淋巴结皮髓质分界不清，血流信号紊乱，提示局部晚期病变。",
+    
+        "cT_stage": "cT3",
+        "cT_stage_evidence": "影像学描述指出原发灶侵犯声门旁间隙，这符合T3分期的诊断标准。",
+        
+        "cN_stage": "cN2b ",
+    "   cN_stage_evidence": "超声与CT提示同侧颈部存在多发肿大且形态异常的淋巴结，且最大径≤6cm，符合N2b的分期特征。"
+    },
+    
+    "step_2_clinical_treatment_decision": {
+        "guideline_reasoning_chain": "患者为下咽癌，临床分期 cT3 cN2b。根据 NCCN 指南，对应 HYPO-5 决策路径。",
+        "recommended_primary_treatment": "放疗或同步全身治疗/放疗；部分或全喉下咽切除术 + 同侧或双侧颈清扫术 ± 甲状腺切除术，以及气管前和同侧气管旁淋巴结清扫；诱导化疗；临床试验",
+        "clinical_treatment_decision_evidence": "根据下咽癌局部晚期（cT3 cN2b）的临床分期 [cite: 327, 328]，临床指南推荐采用保留器官的综合方案或进行根治性手术切除及淋巴结清扫 [cite: 63, 110, 111]。"
+    },
+
+    "step_3_surgery_report_extraction": {
+        "number_of_positive_lymph_nodes": "3 ",
+        "number_of_resected_lymph_nodes": "61",
+        "tests_and_treatments": "5-303.2x, 5-403.04 B, 5-312.2, 1-610.0, 1-611.x, 1-631.0",
+        "medical_history": "该患者于2015年经组织学检查确诊为右侧下咽喉癌，G3分化。此外，双侧甲状腺肿大，淋巴结均大于2 cm。术前已与患者详细讨论了所有常见的治疗方案（手术或以放化疗为主）。目前已确定患者适合行手术治疗，包括喉切除术、部分咽切除术、双侧颈部淋巴结清扫术及甲状腺半切除术。术前，患者有充足的时间询问有关手术的问题",
+        "surgery_report": "实施了喉全切除术伴部分咽切除、双侧颈淋巴结清扫和左侧半甲状腺切除术。术中见右侧梨状窝肿瘤扩展至咽部。在 II 区和 III 区至 IV 区可见广泛的转移性淋巴结融合成团，与周围组织紧密粘连，并到达迷走神经。冰冻切片显示切缘无肿瘤。",
+        "results_of_laboratory_tests": "包含 aPPT 25.6s, 白细胞 6.75x10^3/µl, 血红蛋白 15.4 g/dl, 钾 4.3 mmol/l 等常规手术期血液检测结果 [cite: 392]。",
+        
+        "preliminary_pT_stage": "至少 pT3 或 pT4a",
+        "preliminary_pT_stage_evidence": "手术切除了整个喉部和右侧梨状窝 ，且需进行部分咽切除，提示肿瘤范围广泛，深度浸润，至少达到 pT3，可能侵及周围组织达到 pT4a。",
+    
+        "preliminary_pN_stage": "至少 pN2",
+        "preliminary_pN_stage_evidence": "手术记录明确描述了双侧颈淋巴结清扫 ，且术中发现 II 到 IV 区有广泛的转移性淋巴结融合成团并与静脉和神经紧密粘连，临床和肉眼高度提示多发/大体积转移。",
+    
+        "preliminary_resection_status": "R0",
+        "preliminary_resection_status_evidence": "手术报告明确指出，术中冰冻切片显示切缘无肿瘤，初步判断为 R0 状态。",
+    
+        "preliminary_histologic_type": "鳞状细胞癌",
+        "preliminary_histologic_type_evidence": "病史中提及患者确诊为 G3 分化的下咽癌，下咽部绝大多数为鳞状细胞癌。"
+    },
+
+    "step_4_wsi_slide_update": {
+        "updated_pT_stage": "pT4a ",
+        "updated_pT_stage_evidence": "根据最终病理和 WSI 切片评估，肿瘤浸润深度达 19mm，且突破常规解剖界限，符合 pT4a 标准。",
+    
+        "updated_pN_stage": "pN2b ",
+        "updated_pN_stage_evidence": "结合总共切除 61 枚淋巴结中发现 3 枚阳性的分布特征，最终确认为 pN2b。",
+    
+        "updated_resection_status": "R0 ",
+        "updated_resection_status_evidence": "显微镜下确认切缘无癌细胞累及，但距离极近（<0.1 cm）。",
+    
+        "updated_histologic_type": "SCC_Basaloid",
+        "updated_histologic_type_evidence": "高倍镜下显示鳞状细胞癌的基底样（Basaloid）组织学亚型特征 。",
+    
+        "perineural_invasion_Pn": "no ",
+        "perineural_invasion_Pn_evidence": "HE 切片中未观察到肿瘤细胞包绕神经束膜。",
+    
+        "lymphovascular_invasion_L": "yes",
+        "lymphovascular_invasion_L_evidence": "HE 切片中可见肿瘤细胞团块侵入微小淋巴管腔内 。",
+        
+        "vascular_invasion_V": "no",
+        "vascular_invasion_V_evidence": "HE 切片中未观察到明确的静脉或动脉血管壁受侵或腔内癌栓。",
+        
+        "grading_hpv": "G3 ",
+        "grading_hpv_evidence": "显微镜下肿瘤细胞呈低分化，核异型性显著，核分裂象多见。",
+    
+        "carcinoma_in_situ": "no",
+        "carcinoma_in_situ_evidence": "未见明确的表面上皮原位癌过渡区域。",
+
+        "resection_status_carcinoma_in_situ": "CIS Absent ",
+        "resection_status_carcinoma_in_situ_evidence": "切缘处未见原位癌累及。",
+    
+        "infiltration_depth_in_mm": "19",
+        "infiltration_depth_in_mm_evidence": "在带比例尺的全切片图像上垂直测量最深浸润点为 19mm 。",
+    
+        "closest_resection_margin_in_cm": "<0.1 ",
+        "closest_resection_margin_in_cm_evidence": "显微镜下测量肿瘤主体边缘距离墨水标记的手术切缘不足 1 毫米 。",
+    
+        "perinodal_invasion": "yes ",
+        "perinodal_invasion_evidence": "淋巴结 HE切片中可见肿瘤细胞突破淋巴结包膜，浸润至周围脂肪结缔组织 。"
+    },
+
+    "step_5_adjuvant_treatment_decision": {
+    "alignment_summary_narrative": "该 65 岁男性前吸烟者罹患右侧下咽癌。术前临床分期为 cT3 cN2b，初始适用 HYPO-3 路径。患者接受了广泛的喉全切除及双侧颈部淋巴结清扫术。最终大病理结合 WSI 切片确认，肿瘤浸润深度达 19mm 并突破了常规解剖界限，导致原发灶分期上调；同时结合清扫淋巴结分布，整体病理分期由临床的 cT3 cN2b 修正并确诊为 pT4a pN2b。此外，镜下确诊了淋巴结外侵犯 (perinodal invasion: yes) 以及极近的手术切缘（<0.1 cm）等高危不良病理特征。",
+    "adverse_features_check_reasoning": "患者经历了分期上调（T3 升至 T4a），且存在两个关键的绝对高危不良病理特征：1. 淋巴结外侵犯 (perinodal invasion: yes) ；2. 最近切缘 < 0.1 cm（视为高风险的极窄/阳性切缘等效状态）。",
+    "guideline_decision_chain": "由于术后病理将原发灶分期从 cT3 明确上调至 pT4a，患者的辅助治疗决策路径自动由术前评估的 HYPO-3 转入 HYPO-5（适用于 T4a, N0-3 疾病）。在 HYPO-5 路径下，针对伴有淋巴结外侵犯及高危切缘的 pT4a pN2b 下咽癌，根据 NCCN 指南，强烈推荐（1类推荐）进行术后系统治疗/放疗（同步放化疗）。",
+    "adjuvant_treatment_intent": "curative",
+    "adjuvant_radiotherapy_y_n": "yes",
+    "adjuvant_radiotherapy_type": "percutaneous radiotherapy",
+    "adjuvant_systemic_therapy_y_n": "yes",
+    "adjuvant_systemic_therapy_mode": "fluorouracil + cisplatin",
+    "adjuvant_chemoradiotherapy_y_n": "yes",
+    "analysis_reasoning_chain": "基于分期上调（pT4a）引发的指南决策路径转换（HYPO-3 转为 HYPO-5），叠加结外侵犯和高危切缘的病理铁证，患者最终被安排接受了旨在根治 (curative) 的经皮放射治疗和系统性化疗 (氟尿嘧啶 + 顺铂)，即同步放化疗 (radiochemotherapy: yes) ，完全符合最新病理分期及不良特征干预指南。"
+  }
+}
