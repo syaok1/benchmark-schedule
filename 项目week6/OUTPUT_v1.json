@@ -1,0 +1,60 @@
+{
+  "benchmark_case_output": {
+    "case_id": "Case_0050",
+    "step1_output": {
+      "current_phase": "STAGING_AND_TREATMENT_DECISION",
+      "cT_stage_confirmed": "cT3",
+      "cN_stage_confirmed": "cN2b",
+      "nccn_pathway_node": "HYPO-3",
+      "nccn_pathway_reasoning": "患者为下咽癌（Hypopharynx），临床分期 cT3cN2b。根据指南，符合需要咽切除+全喉切除的指征，对应 NCCN 节点为 HYPO-3（T1-3, N0-3）。",
+      "recommended_treatment_options": [
+        "Surgery (Total laryngopharyngectomy)",
+        "Radiotherapy or concurrent systemic therapy/radiotherapy",
+        "Induction chemotherapy"
+      ],
+      "surgery_detail": "首选治疗包含手术，建议行全喉咽切除及同侧颈部淋巴结清扫",
+      "recommendation_category": "2A类 (放疗/同步全身放疗) / 正常标准 (手术)",
+      "next_action": "PROCEED_TO_SURGERY"
+    },
+    "step2_output": {
+      "histologic_type": "squamous cell carcinoma",
+      "histotype_evidence": "Histopathology frozen section confirms squamous cell carcinoma",
+      "preliminary_pT_stage": "pT3",
+      "pT_stage_evidence": "The tumor infiltrates the paraglottic space and the pre-epiglottic space, with fixation of the right hemilarynx.",
+      "preliminary_resection_status": "R0",
+      "resection_evidence": "The tumor appears to be completely resected grossly (resection of the larynx and right-sided piriform sinus in toto).",
+      "next_action": "PROCEED_TO_WSI"
+    },
+    "step3_output": {
+      "updated_pT_stage": "pT3",
+      "updated_pN_stage": "pN2b",
+      "updated_resection_status": "R0",
+      "updated_histologic_type": "squamous cell carcinoma",
+      "perineural_invasion_Pn": "yes",
+      "lymphovascular_invasion_L": "no",
+      "vascular_invasion_V": "no",
+      "grading_hpv": "G2",
+      "carcinoma_in_situ": "no",
+      "resection_status_carcinoma_in_situ": "Not Available",
+      "infiltration_depth_in_mm": "16.5",
+      "closest_resection_margin_in_cm": "0.6",
+      "perinodal_invasion": "yes",
+      "pN_stage": "pN2b"
+    },
+    "step4_output": {
+      "task_A_patient_summary": {
+        "patient_profile": "62岁男性，有吸烟史。原发灶为下咽部（右侧梨状窝）。术前临床分期为 cT3cN2b。执行了全喉咽切除术和右侧颈部淋巴结清扫（切除42个，阳性3个）。大体与显微病理确认为下咽鳞状细胞癌。最终病理分期为 pT3pN2b，切缘阴性（R0）。镜下观察发现淋巴结外侵犯（perinodal_invasion = yes）和神经周围侵犯（perineural_invasion_Pn = yes）。",
+        "staging_change_analysis": "病理分期 pT3pN2b 与术前临床分期 cT3cN2b 保持一致，无分期升降（staging change occurred: false）。继续沿用 HYPO-3 术后辅助治疗路径。"
+      },
+      "task_B_adjuvant_decision": {
+        "adjuvant_treatment_intent": "curative",
+        "adjuvant_radiotherapy_y_n": "yes",
+        "adjuvant_radiotherapy_type": "经皮放射治疗",
+        "adjuvant_systemic_therapy_y_n": "yes",
+        "adjuvant_systemic_therapy_mode": "顺铂",
+        "adjuvant_chemoradiotherapy_y_n": "yes",
+        "reasoning": "不存在 pT 或 cT 的分期升降。患者确诊为下咽癌（HYPO-3节点），最终病理报告揭示存在淋巴结外侵犯（perinodal invasion: yes），这属于 NCCN 指南定义的‘高危 (High risk)’不良特征。根据 HYPO-3 术后辅助治疗指南决策树，对于存在高危特征的患者，强烈推荐（1类推荐）采用系统治疗+放疗（即同步放化疗）。因此，决定采用治愈性意图（curative）的同步放化疗，放射类型选择经皮放射治疗，系统治疗药物选择顺铂（铂类基础化疗）。"
+      }
+    }
+  }
+}
