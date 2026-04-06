@@ -1,0 +1,81 @@
+{
+  "benchmark_case_input": {
+    "case_meta": {
+      "case_id": "Case_0050",
+      "instructions": "您是一个正在接受测试的多模态大语言模型（MLLM）。请根据提供的各步骤输入（Input），严格按照 NCCN Head and Neck Cancers 2026.V1 指南完成四步临床诊疗推理。要求输出严格的 JSON 格式。"
+    },
+    "step1_input": {
+      "system_instruction": "阶段：STAGING_AND_TREATMENT_DECISION。请根据以下患者基本信息与临床分期，输出初始治疗决策。若为口咽癌，您必须在正式输出前声明需要 p16 检测结果。请注意：本数据集的辅助系统疗法中不包含帕博利珠单抗（Pembrolizumab）；如果患者非手术首选，将在这一步后直接跳至Step 4。",
+      "data": {
+        "year_of_initial_diagnosis": 2018,
+        "age_at_initial_diagnosis": 62,
+        "sex": "Male",
+        "smoking_status": "Current smoker",
+        "primarily_metastasis": false,
+        "primary_tumor_site": "Hypopharynx",
+        "icd_code": "C12.9",
+        "medical_history": "The patient presented with a 4-month history of progressive dysphagia, globus sensation, and a 6 kg unintentional weight loss. Endoscopic examination revealed a large exophytic mass in the right piriform sinus causing right vocal cord fixation. Neck palpation revealed a firm, 4 cm mass on the right side.",
+        "cT_stage": "cT3",
+        "cN_stage": "cN2b"
+      },
+      "withheld_information": [
+        "hpv_association_p16",
+        "adjuvant_treatment_intent"
+      ]
+    },
+    "step2_input": {
+      "system_instruction": "阶段：SURGERY_GROSS_PATHOLOGY。零幻觉硬约束：您的 evidence 必须直接引用手术报告原文短语；完全未提及的特征填写 'Not Available'，严禁医学推断。请输出初步组织学类型、初步pT分期、初步切缘状态以及指向WSI的next_action。",
+      "data": {
+        "medical_history": "The patient presented with a 4-month history of progressive dysphagia, globus sensation, and a 6 kg unintentional weight loss. Endoscopic examination revealed a large exophytic mass in the right piriform sinus causing right vocal cord fixation. Neck palpation revealed a firm, 4 cm mass on the right side.",
+        "icd_code": "C12.9",
+        "ops_codes": [
+          "5-314.1",
+          "5-402.x"
+        ],
+        "surgery_report": "Procedure: Total laryngopharyngectomy, ipsilateral right neck dissection (levels II-V), and ipsilateral thyroid lobectomy. Findings: A 4.5 cm ulcerative tumor was identified in the right piriform sinus. The tumor infiltrates the paraglottic space and the pre-epiglottic space, with fixation of the right hemilarynx. The tumor appears to be completely resected grossly (resection of the larynx and right-sided piriform sinus in toto). Histopathology frozen section confirms squamous cell carcinoma. Multiple enlarged and hardened lymph nodes were resected from levels II and III.",
+        "number_of_resected_lymph_nodes": 42,
+        "number_of_positive_lymph_nodes": 3
+      }
+    },
+    "step3_input": {
+      "system_instruction": "阶段：WSI_MICROSCOPIC_CONFIRMATION。请基于 Step 2 的初步结论以及以下多模态切片图像，更新并输出精确的微观病理数据（pT/pN/R/组织学/微观侵袭特征/形态分级等）。所有数值必须通过比例尺精确测量。",
+      "data": {
+        "step2_model_summary": {
+          "histologic_type": "squamous cell carcinoma",
+          "preliminary_pT_stage": "至少pT3",
+          "preliminary_resection_status": "R0",
+          "pN_status": "pN+"
+        },
+        "images": {
+          "primary_panorama": "WSI_PrimaryTumor/hypopharynx/Case_0050_primary_5x_scalebar.jpg",
+          "primary_detail": "WSI_PrimaryTumor/hypopharynx/Case_0050_primary_20x_scalebar.jpg",
+          "lymphnode_detail": "WSI_LymphNode/Case_0050_lymphnode_10x_scalebar.jpg"
+        }
+      }
+    },
+    "step4_input": {
+      "system_instruction": "阶段：ADJUVANT_TREATMENT_DECISION。请执行两个子任务：子任务A（20%）：汇总 Steps 1-3 全部信息，输出完整患者画像；子任务B（80%）：按规定顺序逐项输出辅助治疗决策。融贯性核心测试：必须检查是否存在分期升降（pT vs cT），若存在，必须明确说明原因并重新定位 NCCN 节点，将升降期列为辅助治疗推理依据。",
+      "expected_output_format": {
+        "adjuvant_treatment_intent": "curative/palliative/no",
+        "adjuvant_radiotherapy_y_n": "yes/no",
+        "adjuvant_radiotherapy_type": "经皮放射治疗/近距离放射治疗 (注：请判断是否需要，并在需要时选择具体记录的类型)",
+        "adjuvant_systemic_therapy_y_n": "yes/no",
+        "adjuvant_systemic_therapy_mode": "氟尿嘧啶+顺铂/顺铂+多西他赛/氟尿嘧啶+卡铂/放射线+氟尿嘧啶+顺铂/顺铂/帕博利珠单抗/化疗/西妥昔单抗/氟尿嘧啶+顺铂+卡铂 (注：请判断是否需要，并在需要时选择具体记录的类型)",
+        "adjuvant_chemoradiotherapy_y_n": "yes/no",
+        "reasoning": "基于哪条不良特征+哪个NCCN节点"
+      },
+      "data": {
+        "accumulated_context": {
+          "step1_output": "[Candidate MLLM Step 1 JSON Output Placeholder]",
+          "step2_output": "[Candidate MLLM Step 2 JSON Output Placeholder]",
+          "step3_output": "[Candidate MLLM Step 3 JSON Output Placeholder]"
+        },
+        "prompt_questions": [
+          "是否存在临床分期到病理分期的升降期 (staging change)?",
+          "导致辅助治疗触发的核心不良病理特征是什么?",
+          "根据最新的病理数据和NCCN节点，您的最终辅助治疗决策是什么 (intent/RT/Systemic/Chemoradiotherapy)?"
+        ]
+      }
+    }
+  }
+}
