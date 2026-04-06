@@ -128,20 +128,52 @@ CSS = 1.0 - (高危漏报×0.30) - (幻觉次数×0.10)
 
 ## 4. 专家标注需求
 
-### A级（必须介入，AI辅助初稿）
-1. **NCCN路径节点**：规则引擎自动生成，专家抽样验证20%；重点T3/T4a边界、声门上喉癌N+分流
-2. **Evidence Anchor**：从手术报告中标注支持pT/R/histotype的关键原文短语（AI提取，专家确认）
-3. **声门/声门上区分**：AI按ICD归类，专家全量检查
-4. **指南偏差案例**：类型A（应治未治）和类型B（数据矛盾），专家修正并建立正确GT
+### A级：必须介入（可大模型辅助生成初稿，专家检查完善）
 
-### B级（自动化+10-20%抽样）
-- preliminary_pT_stage GT、staging_upgrade_occurred、adjuvant_decision_trigger
-- ICD codes 分类（声门/声门上）
-- 口咽癌 p16 状态处理（`hpv_association_p16` 字段，不在输入中提供）
+**① NCCN 路径节点（`nccn_pathway_node`）— Step 1 GT**
+- 规则引擎按 tumor_site + cT + cN + p16 自动定位节点，专家抽样验证20%
+- 重点审核：T3/T4a 边界、声门上喉癌 N+ 分流
+- **注意**：部分节点推荐等级不存在（如 OR-2、OR-3 无固定等级），不可自行填充，见第6节映射表
 
-### C级（完全自动）
-- 所有yes/no二元字段（pathological_data.json直接提供）
-- current_phase GT、淋巴结WSI缺失标记、p16_required、难度分级
+**② 手术报告 Evidence Anchor**
+- 从手术报告中标注支持 pT/pN/R/histotype 结论的关键原文短语
+- 格式：`"pT_anchor": "resection of the larynx and right-sided piriform sinus in toto"`
+- 大模型 辅助提取候选(没有则标注为NULL)，需专家确认
+
+**③指南偏差案例（两类）**
+- **类型A**：指南应辅助治疗但数据显示患者未做 → 标注 `patient_declined: true` + `guideline_recommends`
+- **类型B**：数据矛盾（如"辅助系统疗法:no" 但"模式:氟尿嘧啶+顺铂"）→ 修正矛盾，标注正确GT
+- 可 大模型 辅助筛选出这两类，专家最终确认
+
+### B级：自动化+可专家抽样（10-20%）
+
+| 字段 | 自动化方法 | 审核重点 |
+|------|-----------|----------|
+| `preliminary_pT_stage` GT | 规则从手术报告提取 | pT3 vs pT4a 边界 |
+| `staging_upgrade_occurred` | pT vs cT 自动比较 | pT < cT 异常降期案例 |
+| `high_risk_gross_signals` | 大模型辅助关键词提取 | 与 perinodal 对应关系 |
+| `adjuvant_decision_trigger` | 从病理特征自动生成 | 多特征并存优先级 |
+| ICD codes 分类（声门/声门上） | 大模型归类 | 全量专家检查 |
+| 口咽癌 p16 状态处理 | 大模型归类 | hpv_association_p16 |
+
+注1:对所有患者**均不在输入中提供** `hpv_association_p16` 字段的阴/阳性结果
+- Step 1 内设附加子任务：在询问 NCCN 路径时，口咽癌患者被测模型**必须先声明"需要 p16 结果才能给出路径"**，然后系统提供 p16 结果，模型再给出最终路径
+- 此附加子任务需单独设计评分逻辑，独立报告
+- **例外**：531号口咽癌患者未测试 p16 且 ground truth 较少，**建议直接剔除**
+ 
+注2:声门喉癌 vs 声门上喉癌区分**
+- 原数据集将两者均归为"喉癌"
+- 映射时根据 ICD codes 由 大模型 自动归类，专家全量检查确认
+- 这两类病种使用完全不同的 NCCN 路径（GLOT vs SUPRA），区分正确与否直接影响 GT
+
+
+### C级：完全自动
+
+- 所有 yes/no 二元字段（pathological_data.json 直接提供）
+- `current_phase` GT（按步骤固定）
+- 淋巴结 WSI 缺失标记（文件存在性检查）
+- `p16_required`（口咽癌=true，其他=false）
+- 难度分级（Simple/Medium/Hard）
 
 ---
 
@@ -206,14 +238,19 @@ CSS = 1.0 - (高危漏报×0.30) - (幻觉次数×0.10)
 
 | 情况 | meta标记 | 处理 |
 |------|---------|------|
-| 非手术首选 | `is_non_surgical: true` | Step1后直接跳Step4，Step2/3标记NA |
+| 非手术首选（本数据集没有） | `is_non_surgical: true` | Step1后直接跳Step4，Step2/3标记NA |
 | 声门/声门上区分 | `icd_codes_larynx_subtype` | AI按ICD归类，专家全量检查 |
 | 病史透露cTcN | `contains_cTcN_leak: true` | 删除泄露内容，作为信息更新能力测试 |
 | 患者拒绝辅助 | `patient_declined: true` | 按guideline_recommends字段评分 |
 | 数据矛盾患者 | `data_contradiction: true` | 专家修正后提供正确GT |
-| 531号p16未测 | 建议剔除 | 不纳入评测集 |
-| pNX（未做颈清）| `pNX_no_neck_dissection` | Step3输出pNX+perinodal=not_applicable |
-| pNX（记录缺失）| `pNX_data_missing` | 建议排除评测集 |
+| 531号口咽癌p16未测 | 建议剔除 | 不纳入评测集 |
+
+pNX(20%数据缺失)
+| 场景 | cN（术前| pN（术后病理）|说明|
+|------|---------|------|------|
+|正常案例|cN0/cN1/cN2/cN3|pN0/pN1/pN2/pN3|正常处理|
+|未做淋巴颈清|cN0|pNX|术前评估阴性，未做颈清，无病理结果|
+|颈清但未评估|cN+|pNX|数据缺失，建议排除或另设难度层次问题检查是否存在幻觉|
 
 ---
 
@@ -238,26 +275,11 @@ dataset/cases/Case_{patient_id}/
 
 ## 9. ⚠️ 待确认的关键问题（影响后续开发）
 
-### 问题1：cT/cN 的实际来源【最高优先级】
-**现状**：cT/cN 是术前临床分期，理论上应来自影像学评估，不能直接等同于 pT/pN。
-
-**需要确认**：
-- `clinical_data.json` 中是否有独立的 cT/cN 字段？
-- 如果没有，cT/cN 是否需要从手术报告/病史文本中提取或推断？
-- 两个 JSON 文件的完整字段列表是什么？
-
-**影响**：直接决定 step1_input.json 的构建方式和 AI 辅助提取的必要性。
-
-**行动**：P0-2 `parse_hancock.py` 跑完后第一件事就是打印两个 JSON 的字段结构。
-
-### 问题2：案例集规模
-**现状**：450例（简单100+中等200+困难150）是占位符，非实际数据分布推导。
-
-**需要确认**：P0-2 跑完字段完整性统计后，看实际 Stage 分布再定。
-
-### 问题3：pNX 案例数量
-**需要确认**：763例中 pNX 有多少？属于"未做颈清"还是"记录缺失"？
-决定是否值得单独设计评分逻辑，还是直接排除。
+**Step 1（初始治疗决策）的输出格式**：关于nccn指南给出的手术内容，商榷是需要将其单独列出（需考虑篇幅是否过长），还是应当和治疗选项（options）放在一起以符合指南的格式。
+**Step 3（WSI 切片更新）的输入内容**：商榷该步骤的具体输入物，包括带比例尺的原发灶全景图（5x）和细节图（20x）、带比例尺的淋巴结图（10x），以及 Step 2 的模型输出摘要。
+**Step 3（WSI 切片更新）的影像格式处理**：商榷如何实际向模型输入大像素的 svs 切片影像。
+**Step 4（辅助治疗决策）的子任务设置**：商榷“子任务 A”（要求汇总 Steps 1-3 的全部信息，输出包含所有 Cannot Determine 字段的完整患者画像）是否具有必要性。
+**评分体系**：整个第 8 节“评分体系”的具体评判细则尚未完全敲定，需要进一步商榷。
 
 ---
 
@@ -270,6 +292,7 @@ dataset/cases/Case_{patient_id}/
 | Evidence Anchor 提取 | `extract_evidence_anchors.py` | 从手术报告定位支持pT/R/histotype的关键原文短语 |
 | 辅助治疗建议检测 | `clean_surgery_reports.py` | 识别报告中医生给出的辅助治疗建议段落 |
 | cTcN 泄露检测（AI兜底）| `detect_cTcN_leak.py` | 规则匹配未命中时，AI识别隐含的临床分期描述 |
+- 其他数据清洗也可由大模型支持
 
 ### 统一 AI 接口（ai_client.py）
 
@@ -301,8 +324,8 @@ hnc-benchmark/
 │   ├── classify_larynx_icd.py         # P0-2
 │   ├── detect_data_issues.py          # P0-2
 │   ├── detect_cTcN_leak.py            # P0-2（规则+AI兜底）
-│   ├── nccn_router.py                 # P0-3（纯规则）✓已完成
-│   ├── adjuvant_router.py             # P0-3（纯规则）✓已完成
+│   ├── nccn_router.py                 # P0-3（纯规则）
+│   ├── adjuvant_router.py             # P0-3（纯规则）
 │   ├── clean_surgery_reports.py       # P0-4（AI辅助）
 │   ├── extract_wsi_patches.py         # P0-5
 │   ├── record_ln_wsi_status.py        # P0-5
@@ -350,7 +373,7 @@ hnc-benchmark/
 | 模块 | 状态 |
 |------|------|
 | Session 1：项目骨架 | ⬜ 待开始 |
-| Session 2：规则引擎（nccn_router + adjuvant_router + 单元测试）| ✅ 已完成 |
+| Session 2：规则引擎（nccn_router + adjuvant_router + 单元测试）| ⬜ 待开始|
 | Session 3：数据处理脚本（P0-2 ~ P0-7）| ⬜ 待开始 |
 | Session 4：评测引擎（PHASE 1）| ⬜ 待开始 |
 | Session 5：GitHub Pages 网站 | ⬜ 待开始 |
