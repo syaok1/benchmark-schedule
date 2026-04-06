@@ -1,0 +1,69 @@
+{
+  "benchmark_case_groundtruth": {
+    "case_meta": {
+      "case_id": "案例唯一标识符（例如 Case_0050）",
+      "primary_tumor_site": "原发肿瘤部位（例如 Hypopharynx/Oral_cavity 等）",
+      "cancer_subtype": "癌症具体亚型（根据部位或ICD codes划分）",
+      "difficulty": "案例难度分级（Simple/Medium/Hard）",
+      "p16_required": "布尔值，指示该案例是否强制需要 p16 检测结果（通常仅口咽癌为 true）",
+      "staging_change": "布尔值，指示该患者从临床分期(cT/cN)到病理分期(pT/pN)是否发生了升期或降期",
+      "patient_declined_adjuvant": "布尔值，指示患者是否在真实历史中拒绝了指南推荐的辅助治疗（用于测试偏差案例）",
+      "data_contradiction": "布尔值，指示原始真实数据中是否存在前后矛盾需要专家修正（例如化疗记录与模式不符）"
+    },
+    
+    "step1_gt": {
+      "cT_stage": "由专家或规则根据临床数据推断的标准临床 T 分期（提供给模型作为参考标准）",
+      "cN_stage": "由专家或规则根据临床数据推断的标准临床 N 分期",
+      "nccn_pathway_node": "根据患者部位、分期等信息在 NCCN 2026.V1 指南中定位的确切决策节点编号（如 HYPO-3）",
+      "recommendation_category_acceptable": "数组形式，包含该节点在指南中允许的推荐等级（如 '1类', '2A类' 等）",
+      "p16_subtask_check": {
+        "expected_to_ask_for_p16": "布尔值，测试模型是否应该在给出治疗意见前主动要求提供 p16 结果",
+        "penalty_if_asked": "布尔值，测试模型是否因为在非必要癌种（如下咽癌）中索要 p16 结果而应受扣分惩罚"
+      }
+    },
+
+    "step2_gt": {
+      "histologic_type": "从手术报告原文提取的初步组织学类型（如鳞状细胞癌）",
+      "histotype_evidence_anchor": "支持组织学类型的必须包含的手术报告原文短语片段（用于防幻觉判定）",
+      "preliminary_pT_stage": "仅凭手术大体报告推断的初步病理 T 分期（通常带有 '至少' 前缀）",
+      "pT_stage_evidence_anchor": "支持初步 pT 分期的必须包含的手术报告原文短语片段",
+      "preliminary_resection_status": "仅凭手术大体报告推断的初步切缘状态（R0/R1/R2/Uncertain）",
+      "resection_evidence_anchor": "支持切缘状态的必须包含的手术报告原文短语片段",
+      "pN_status_mentioned": "布尔值，标记手术报告中是否明确提及了淋巴结阳性状态（不要求精确到具体N级别）"
+    },
+
+    "step3_gt": {
+      "updated_pT_stage": "基于微观WSI切片确定的最终精确病理 T 分期",
+      "updated_pN_stage": "基于微观WSI切片确定的最终精确病理 N 分期",
+      "updated_resection_status": "基于微观切片确认的最终切缘状态（R0/R1/R2）",
+      "updated_histologic_type": "基于微观切片更新或确认的组织学类型",
+      "perineural_invasion_Pn": "微观特征：是否发生神经周围侵犯（yes/no/Cannot Determine）",
+      "lymphovascular_invasion_L": "微观特征：是否发生淋巴管血管侵犯（yes/no/Cannot Determine）",
+      "vascular_invasion_V": "微观特征：是否发生血管侵犯（yes/no/Cannot Determine）",
+      "grading_hpv": "微观病理分级（G1/G2/G3）",
+      "carcinoma_in_situ": "微观特征：是否存在原位癌（yes/no）",
+      "resection_status_carcinoma_in_situ": "微观特征：切缘处原位癌状态（CIS Present/CIS Absent）",
+      "infiltration_depth_in_mm": "数值：需要模型通过切片比例尺精确测量得出的肿瘤浸润深度（毫米）",
+      "infiltration_depth_tolerance": "数组形式：浸润深度的允许误差范围（例如 [下限, 上限]）",
+      "closest_resection_margin_in_cm": "数值：需要模型通过切片比例尺精确测量得出的最近切缘距离（厘米）",
+      "margin_tolerance": "数组形式：最近切缘距离的允许误差范围",
+      "perinodal_invasion": "微观特征：是否存在淋巴结外侵犯/包膜外侵犯（yes/no/Cannot Determine/not_applicable，核心高危判定指标）"
+    },
+
+    "step4_gt": {
+      "staging_change_occurred": "布尔值，用于硬性校验模型是否正确察觉到从Step1到Step3过程中的分期升降",
+      "adjuvant_treatment_intent": "最终决定的辅助治疗意图（curative/palliative/no）",
+      "adjuvant_radiotherapy_y_n": "最终决定是否需要进行辅助放疗（yes/no）",
+      "adjuvant_radiotherapy_type": "真实数据中患者实际接受或指南强烈推荐的放射治疗具体类型",
+      "adjuvant_systemic_therapy_y_n": "最终决定是否需要进行辅助全身治疗（yes/no）",
+      "adjuvant_systemic_therapy_mode": "真实数据中患者实际接受或指南强烈推荐的全身治疗药物模式（如氟尿嘧啶+顺铂）",
+      "adjuvant_chemoradiotherapy_y_n": "最终决定是否需要进行同步放化疗（yes/no）",
+      
+      "judge_llm_reasoning_criteria": {
+        "required_keywords": "数组形式，规定评判大模型在打分时，被测模型的推理文本中必须包含的核心词汇（如特定NCCN节点、'高危'、'切缘阳性'等）",
+        "logical_flow_must_include": "数组形式，定义被测模型的推理逻辑链中必须体现的几个逻辑步骤（用于LLM-Judge评判）",
+        "critical_errors_to_penalize": "数组形式，列出如果在模型推理中发现的致命错误Flag（如漏报高危特征触发 [CHEMORT_MISSED]），用于触发临床安全惩罚(CSS)"
+      }
+    }
+  }
+}
