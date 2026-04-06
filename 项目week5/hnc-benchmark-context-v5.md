@@ -39,6 +39,7 @@
 - 部分病史/手术报告可能透露 cT/cN 信息，需标注 `cont大模型ns_cTcN_leak: true` 并**删去泄露内容**
 - 手术报告中医生直接给出的辅助治疗建议**必须删去**
 - 531号患者为口咽癌但 p16 未测试，且整体 ground truth 较少，**建议剔除**
+- 20%患者由于癌症初期或手术原因无pN记录（记录为NX），**建议根据情况进行归类为pN0或划分为数据部分缺失的高难度题**
 
 **文件目录**：
 ```
@@ -50,6 +51,7 @@ HANCOCK/
 │   ├── clinical_data.json
 │   ├── pathological_data.json     ← GT主要来源
 │   └── blood_data.json
+│   └── blood_data_reference_ranges.json
 └── TextData/
     ├── reports_english/           ← Step 2 输入
     └── histories_english/         ← Step 1 辅助输入
@@ -130,18 +132,18 @@ Case_XXXX/
 {
   "case_id": "Case_0050",
   "patient_id": "0050",
-  "primary_tumor_site": "Hypopharynx",
+  "primary_tumor_site": "Hypopharynx|Oral_cavity|Larynx|Oropharynx",
   "cancer_subtype": "glottic|supraglottic|hypopharynx|oral_cavity|oropharynx_p16neg|oropharynx_p16pos",
   "difficulty": "Simple|Medium|Hard",
-  "has_primary_wsi": true,
-  "has_lymphnode_wsi": true,
+  "has_primary_wsi": true|false,
+  "has_lymphnode_wsi": true|false,
   "ln_wsi_missing_reason": null,
-  "cont大模型ns_cTcN_leak": false,
-  "is_non_surgical": false,
-  "p16_required": false,
-  "staging_upgrade": true,
-  "patient_declined_adjuvant": false,
-  "data_contradiction": false,
+  "contains_cTcN_leak":  true|false,
+  "is_non_surgical": true|false,
+  "p16_required":  true|false,
+  "staging_change":  true|false,
+  "patient_declined_adjuvant": true|false,
+  "data_contradiction": true|false,
   "icd_codes_larynx_subtype": "glottic|supraglottic|null",
   "data_quality_flags": []
 }
@@ -161,7 +163,7 @@ Case_XXXX/
 |------|------|-----------|------|
 | pN0（无转移） | `[LN_WSI_NOT_AV大模型LABLE — pN0]` | `"not_applicable"` | 输出not_applicable得满分 |
 | pN+但WSI不可得 | `[LN_WSI_NOT_AV大模型LABLE — specimen_unav大模型lable]` | `"Cannot Determine"` | Cannot Determine满分；输出yes/no扣分+CSS惩罚 |
-| `closest_margin`无法从图像测量 | Step4前系统补充提供 | 使用系统提供值并注明来源 | 正常评分 |
+
 
 ---
 
@@ -173,14 +175,14 @@ Case_XXXX/
 **输入**（step1_input.json）：
 - `year_of_initial_diagnosis`, `age_at_initial_diagnosis`, `sex`, `smoking_status`
 - `primarily_metastasis`, `primary_tumor_site`, `icd_code`
-- **直接提供** `cT_stage`（来自 pathological_data.json 的 cT 字段）
-- **直接提供** `cN_stage`（来自 pathological_data.json 的 cN 字段）
+- **直接提供** `cT_stage`（根据来自 pathological_data.json 的 pT 字段+病史（部分病史会直接提供）推断）
+- **直接提供** `cN_stage`（根据来自 pathological_data.json 的 pN 字段+病史（部分病史会直接提供）推断）
 - `medical_history`（来自 histories_english/）
-- **不提供** `hpv_association_p16`（任何情况均不提供阴/阳性结果）
+- **不提供** `hpv_association_p16`（任何情况均不提供阴/阳性结果，需要模型提出要求）
 - **不提供** `adjuvant_treatment_intent`（告知模型：若未给出视为no）
 
 **口咽癌附加子任务**：
-- 系统提供 cT/cN 后，先询问"下一步需要什么信息才能给出治疗路径？"
+- 系统提供 cT/cN 后，先询问"下一步是否需要额外信息才能给出治疗路径？如果有则直接给出需要的，没有则回答无"//所有case均需要询问
 - GT：模型必须回答"需要 p16/HPV 检测结果"，系统随即提供 p16 结果
 - 模型再给出最终 NCCN 路径和治疗方案
 - 此子任务独立评分，不计入总分，单独报告
@@ -194,16 +196,18 @@ Case_XXXX/
   "nccn_pathway_node": "HYPO-3",
   "nccn_pathway_reasoning": "肿瘤部位→T→N→节点的完整推演逻辑",
   "recommended_treatment_options": ["放疗或同步全身治疗/放疗", "手术", "诱导化疗", "临床试验"],
-  "surgery_det大模型l": "部分或全喉下咽切除术+颈清±甲状腺切除+气管旁清扫",
+  "surgery_detail": "部分或全喉下咽切除术+颈清±甲状腺切除+气管旁清扫",
   "recommendation_category": "2A类",
   "next_action": "SURGERY_EXECUTION"
 }
 ```
+**商榷**：
+- 手术内容是否需要单独列出（篇幅是否过长），还是和options放一起（指南格式）
 
 **约束**：
 - 非口咽癌不应要求 p16（否则扣分）
 - 下咽癌/喉癌：p16 检测对这些癌种无临床意义，不要求
-- 非手术首选患者（`is_non_surgical: true`）→ Step 1后直接跳到 Step 4
+- 非手术首选患者（`is_non_surgical: true`）→ Step 1后直接跳到 Step 4//本数据集没有
 - 数据集无帕博利珠单抗治疗，需在 Prompt 中明确告知
 
 ---
@@ -212,7 +216,7 @@ Case_XXXX/
 **阶段**：`SURGERY_GROSS_PATHOLOGY`
 
 **输入**（step2_input.json）：
-- `surgery_report`（来自reports_english/，已删去医生辅助治疗建议）
+- `surgery_report`（来自reports_english/，应数据清洗删去医生辅助治疗建议）
 - `medical_history`
 - `icd_code`, `ops_codes`
 - `number_of_positive_lymph_nodes`, `number_of_resected_lymph_nodes`
@@ -232,10 +236,10 @@ Case_XXXX/
 ### Step 3：WSI 切片 → 微观病理更新（多模态）
 **阶段**：`WSI_MICROSCOPIC_CONFIRMATION`
 
-**输入**：
+**输入（商榷）**：
 - `primary_5x_scalebar.jpg`（全景，含比例尺）
 - `primary_20x_scalebar.jpg`（细节，含比例尺）
-- `lymphnode_10x_scalebar.jpg` 或缺失标记
+- `lymphnode_10x_scalebar.jpg` （含比例尺）
 - Step 2 模型输出摘要
 
 **必须输出（全部字段）**：
@@ -261,13 +265,16 @@ Case_XXXX/
 
 ---
 
+**商榷**：
+- 如何输入大像素的svs切片影像
+
 ### Step 4：最终病理汇总 → 辅助治疗决策
 **阶段**：`ADJUVANT_TREATMENT_DECISION`
 
-**输入**：Steps 1-3 的模型自身输出（累积上下文，非 GT）
+**输入**：Steps 1-3 的模型自身输出（累积上下文，非 GT）+promot（规范输出格式）
 
 **两个子任务**：
-- **子任务A（20%）**：汇总 Steps 1-3 全部信息，输出完整患者画像（含所有 Cannot Determine 字段）
+- **子任务A（20%）**：汇总 Steps 1-3 全部信息，输出完整患者画像（含所有 Cannot Determine 字段）//可商榷该任务是否有必要
 - **子任务B（80%）**：按顺序逐项输出辅助治疗决策
 
 **辅助治疗决策输出顺序**：
@@ -283,12 +290,14 @@ Case_XXXX/
 }
 ```
 
-**升期路径切换（融贯性核心测试）**：
+**路径切换（融贯性核心测试）**：
 - Step 3 更新的 pT > Step 1 直接提供的 cT（发生升期）→ Step 4 必须：
   1. 明确说明升期及原因
   2. 重新定位 NCCN 节点（如 HYPO-3 → HYPO-5）
   3. 将升期列为触发辅助治疗的依据之一
+- 降期同理
 - 任何缺失 → `[CASCADE_ERROR]` 惩罚
+- promot中需询问是否有分期升降
 
 ---
 
@@ -570,7 +579,7 @@ Case_XXXX/
 
 ---
 
-## 8. 评分体系
+## 8. 评分体系（需商榷具体细则）
 
 ### 总分结构
 ```
@@ -633,4 +642,3 @@ pNX(20%数据缺失)
 
 ---
 
-*文档结束 | 下次继续时将此文件提供给 Claude，说明当前进展到哪个步骤*
