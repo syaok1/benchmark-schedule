@@ -1,5 +1,5 @@
 # HNC-Benchmark 项目上下文文档
-# 版本：v5.0 | 更新：2026-04-03（Step 1/2 合并，删除 describe_focus 合成）
+# 版本：v6.0 | 更新：2026-04-06（Step 1/2 合并，删除 describe_focus 合成，更正部分文本错误与以及不现实方案）
 # 数据集：https://www.cancerimagingarchive.net/collection/hancock/
 # 指南：NCCN Head and Neck Cancers 2026.V1
 # 状态：设计阶段完成，进入初步搭建阶段
@@ -59,7 +59,7 @@ HANCOCK/
 
 ---
 
-## 2. 专家标注需求清单（v5.0）
+## 2. 专家标注需求清单（v6.0）
 
 ### A级：必须介入（可大模型辅助生成初稿，专家检查完善）
 
@@ -75,22 +75,22 @@ HANCOCK/
 
 **③指南偏差案例（两类）**
 - **类型A**：指南应辅助治疗但数据显示患者未做 → 标注 `patient_declined: true` + `guideline_recommends`
-- **类型B**：数据矛盾（如"辅助系统疗法:no" 但"模式:氟尿嘧啶+顺铂"）→ 修正矛盾，标注正确GT
+- **类型B**：数据矛盾（如"辅助系统疗法:no" 但"模式:氟尿嘧啶+顺铂"）→ 根据nccn指南修正矛盾，标注正确GT
 - 可 大模型 辅助筛选出这两类，专家最终确认
 
 ### B级：自动化+可专家抽样（10-20%）
 
 | 字段 | 自动化方法 | 审核重点 |
 |------|-----------|----------|
-| `preliminary_pT_stage` GT | 规则从手术报告提取 | pT3 vs pT4a 边界 |
-| `staging_upgrade_occurred` | pT vs cT 自动比较 | pT < cT 异常降期案例 |
+| `preliminary_pT_stage` GT | 规则从手术报告提取 |从手术报告规范提取 |
+| `staging_change_occurred` | pT vs cT 自动比较 | pT vs cT 异常升降期案例 |
 | `high_risk_gross_signals` | 大模型辅助关键词提取 | 与 perinodal 对应关系 |
 | `adjuvant_decision_trigger` | 从病理特征自动生成 | 多特征并存优先级 |
 | ICD codes 分类（声门/声门上） | 大模型归类 | 全量专家检查 |
 | 口咽癌 p16 状态处理 | 大模型归类 | hpv_association_p16 |
 
 注1:对所有患者**均不在输入中提供** `hpv_association_p16` 字段的阴/阳性结果
-- Step 1 内设附加子任务：在询问 NCCN 路径时，口咽癌患者被测模型**必须先声明"需要 p16 结果才能给出路径"**，然后系统提供 p16 结果，模型再给出最终路径
+- Step 1 内设附加子任务：在询问 NCCN 路径时，口咽癌患者被测模型**必须先声明"需要 p16 结果才能给出路径"**，然后系统提供 p16 结果，模型再给出最终路径（即先给出grountruth，然后询问是否还有需要的信息判断，对于口咽癌患者mllm需要求提供p16检测结果）
 - 此附加子任务需单独设计评分逻辑，独立报告
 - **例外**：531号口咽癌患者未测试 p16 且 ground truth 较少，**建议直接剔除**
  
