@@ -1,0 +1,261 @@
+{
+  "document_info": {
+    "title": "HNC-Benchmark 项目上下文文档[cite: 1]",
+    "version": "v6.0[cite: 1]",
+    "update_note": "2026-04-06（Step 1/2 合并，删除 describe_focus 合成，更正部分文本错误与以及不现实方案）[cite: 1]",
+    "dataset_url": "https://www.cancerimagingarchive.net/collection/hancock/[cite: 1]",
+    "guidelines": "NCCN Head and Neck Cancers 2026.V1[cite: 1]",
+    "status": "设计阶段完成，进入初步搭建阶段[cite: 1]"
+  },
+  "0_project_overview": {
+    "target": "构建评测专业/非专业多模态大语言模型（MLLM）在头颈癌临床推理能力的 Benchmark，并做成公开网站（支持本地部署）。[cite: 1]",
+    "core_design": [
+      "基于 Hancock 真实患者数据（763例，德国Erlangen单中心，2005-2019）[cite: 1]",
+      "完整模拟 NCCN 标准诊疗闭环：临床分期决策 → 初始治疗决策 → 手术 → 病理 → 辅助治疗[cite: 1]",
+      "四步顺序推理（原 Step 1/2 合并为 Step 1），上下文累积，错误可级联传播[cite: 1]",
+      "覆盖：口腔癌、口咽癌(p16-)、口咽癌(p16+)、下咽癌、声门喉癌、声门上喉癌[cite: 1]"
+    ],
+    "model_roles": {
+      "candidate_mllm": "接收输入，输出严格 JSON，走完四步推理链[cite: 1]",
+      "judge_llm": "评判自由文本字段（reasoning），用预定义标准逐条 T/F[cite: 1]"
+    }
+  },
+  "1_hancock_dataset_key_facts": {
+    "modalities": [
+      {"type": "原发灶 WSI", "quantity": "709张（701例×1，8例×2）", "availability": "92%", "format": "SVS", "description": "3DHISTECH P1000，82.44×，0.1213µm/px[cite: 1]"},
+      {"type": "淋巴结 WSI", "quantity": "396张", "availability": "52%", "format": "SVS", "description": "两种扫描仪，分辨率不同[cite: 1]"},
+      {"type": "GeoJSON 肿瘤标注", "quantity": "~701个", "availability": "~100%", "format": "GeoJSON", "description": "QuPath标注，多边形坐标，用于ROI提取[cite: 1]"},
+      {"type": "手术报告（英译）", "quantity": ">98%", "availability": ">98%", "format": ".txt", "description": "DeepL翻译，reports_english/[cite: 1]"},
+      {"type": "病理结构化数据", "quantity": "763例", "availability": "100%", "format": "JSON", "description": "pathological_data.json，GT核心来源[cite: 1]"},
+      {"type": "临床结构化数据", "quantity": "763例", "availability": "100%", "format": "JSON", "description": "clinical_data.json[cite: 1]"}
+    ],
+    "important_limitations_and_preprocessing": [
+      "淋巴结 WSI 缺失 367 例，需分类处理（见第4节）[cite: 1]",
+      "Hancock 将声门喉癌与声门上喉癌均归为喉癌，需额外根据 ICD codes 区分，由大模型归类后专家检查[cite: 1]",
+      "部分病史/手术报告可能透露 cT/cN 信息，需标注 contains_cTcN_leak: true 并删去泄露内容[cite: 1]",
+      "手术报告中医生直接给出的辅助治疗建议必须删去[cite: 1]",
+      "531号患者为口咽癌但 p16 未测试，且整体 ground truth 较少，建议剔除[cite: 1]",
+      "20%患者由于癌症初期或手术原因无pN记录（记录为NX），建议根据情况进行归类为pN0或划分为数据部分缺失的高难度题[cite: 1]"
+    ],
+    "file_directory": "HANCOCK/ 包含 WSI_PrimaryTumor, WSI_LymphNode, WSI_PrimaryTumor_Annotations, StructuredData (clinical_data.json, pathological_data.json, blood_data.json, blood_data_reference_ranges.json), TextData (reports_english/, histories_english/)[cite: 1]"
+  },
+  "2_expert_annotation_requirements": {
+    "level_A_must_intervene": [
+      "NCCN 路径节点 (nccn_pathway_node) — Step 1 GT: 规则引擎按 tumor_site + cT + cN + p16 自动定位节点，专家抽样验证20%。部分节点推荐等级不存在，不可自行填充。重点审核：T3/T4a 边界、声门上喉癌 N+ 分流[cite: 1]",
+      "手术报告 Evidence Anchor: 从手术报告中标注支持 pT/pN/R/histotype 结论的关键原文短语。大模型辅助提取候选，需专家确认[cite: 1]",
+      "指南偏差案例: 类型A (患者拒绝辅助治疗，标注 patient_declined: true + guideline_recommends) 和 类型B (数据矛盾，需根据指南修正矛盾，标注正确GT)。大模型辅助筛选，专家最终确认[cite: 1]"
+    ],
+    "level_B_automated_plus_expert_sampling": [
+      {"field": "preliminary_pT_stage GT", "method": "规则从手术报告提取", "audit_focus": "从手术报告规范提取[cite: 1]"},
+      {"field": "staging_change_occurred", "method": "pT vs cT 自动比较", "audit_focus": "pT vs cT 异常升降期案例[cite: 1]"},
+      {"field": "high_risk_gross_signals", "method": "大模型辅助关键词提取", "audit_focus": "与 perinodal 对应关系[cite: 1]"},
+      {"field": "adjuvant_decision_trigger", "method": "从病理特征自动生成", "audit_focus": "多特征并存优先级[cite: 1]"},
+      {"field": "ICD codes 分类（声门/声门上）", "method": "大模型归类", "audit_focus": "全量专家检查[cite: 1]"},
+      {"field": "口咽癌 p16 状态处理", "method": "大模型归类", "audit_focus": "hpv_association_p16[cite: 1]"}
+    ],
+    "notes": [
+      "对所有患者均不在输入中提供 hpv_association_p16 字段的阴/阳性结果。Step 1 内设附加子任务：口咽癌患者被测模型必须先声明需要 p16 结果，系统提供后再给出最终路径。此任务独立评分。531号患者未测试p16且GT较少，建议直接剔除[cite: 1]",
+      "声门喉癌 vs 声门上喉癌区分：根据 ICD codes 由大模型自动归类，专家全量检查确认，这两类使用完全不同的NCCN路径[cite: 1]"
+    ],
+    "level_C_fully_automated": [
+      "所有 yes/no 二元字段 (pathological_data.json 直接提供)[cite: 1]",
+      "current_phase GT (按步骤固定)[cite: 1]",
+      "淋巴结 WSI 缺失标记 (文件存在性检查)[cite: 1]",
+      "p16_required (口咽癌=true，其他=false)[cite: 1]",
+      "难度分级 (Simple/Medium/Hard)[cite: 1]"
+    ]
+  },
+  "3_case_data_structure": {
+    "files": [
+      "meta.json[cite: 1]",
+      "step1_input.json (患者基本信息 + 直接给出的 cT/cN，不含p16结果)[cite: 1]",
+      "step1_gt.json (NCCN路径GT + p16子任务GT)[cite: 1]",
+      "step2_input.json (手术报告+病史，已删辅助治疗建议)[cite: 1]",
+      "step2_gt.json (初步pT/pN/R GT + evidence anchors)[cite: 1]",
+      "step3_images/ (primary_5x_scalebar.jpg, primary_20x_scalebar.jpg, lymphnode_10x_scalebar.jpg 或缺失标记)[cite: 1]",
+      "step3_gt.json (微观病理GT)[cite: 1]",
+      "step4_gt.json (辅助治疗GT，含指南偏差修正)[cite: 1]"
+    ],
+    "meta_json_fields": [
+      "case_id", "patient_id", "primary_tumor_site", "cancer_subtype", "difficulty", "has_primary_wsi", "has_lymphnode_wsi", "ln_wsi_missing_reason", "contains_cTcN_leak", "is_non_surgical", "p16_required", "staging_change", "patient_declined_adjuvant", "data_contradiction", "icd_codes_larynx_subtype", "data_quality_flags"
+    ],
+    "case_scale": {
+      "simple": "100例 (Stage I-II，无不良特征)[cite: 1]",
+      "medium": "200例 (Stage III，1个不良特征)[cite: 1]",
+      "hard": "150例 (Stage IV，多不良特征，含升期)[cite: 1]",
+      "total_core_eval_set": "约 450 例[cite: 1]"
+    }
+  },
+  "4_lymph_node_wsi_missing_handling": [
+    {"situation": "pN0（无转移）", "marker": "[LN_WSI_NOT_AVAILABLE — pN0]", "expected_model_output": "not_applicable", "scoring": "输出not_applicable得满分[cite: 1]"},
+    {"situation": "pN+但WSI不可得", "marker": "[LN_WSI_NOT_AVAILABLE — specimen_unavailable]", "expected_model_output": "Cannot Determine", "scoring": "Cannot Determine满分；输出yes/no扣分+CSS惩罚[cite: 1]"}
+  ],
+  "5_four_step_clinical_workflow": {
+    "step_1": {
+      "name": "临床分期 + NCCN路径 → 初始治疗决策（合并步骤）[cite: 1]",
+      "phase": "STAGING_AND_TREATMENT_DECISION[cite: 1]",
+      "inputs": ["year_of_initial_diagnosis", "age_at_initial_diagnosis", "sex", "smoking_status", "primarily_metastasis", "primary_tumor_site", "icd_code", "cT_stage (直接提供)", "cN_stage (直接提供)", "medical_history", "不提供 hpv_association_p16", "不提供 adjuvant_treatment_intent[cite: 1]"],
+      "oropharynx_subtask": "询问是否需要额外信息。GT: 模型必须回答需要 p16/HPV 检测结果，系统提供后再给路径。独立评分。非口咽癌不应要求p16[cite: 1]",
+      "required_outputs": ["current_phase", "cT_stage_confirmed", "cN_stage_confirmed", "nccn_pathway_node", "nccn_pathway_reasoning", "recommended_treatment_options", "surgery_detail", "recommendation_category", "next_action[cite: 1]"],
+      "constraints": "数据集无帕博利珠单抗治疗；非手术首选直接跳Step4[cite: 1]",
+      "points_to_discuss": "手术内容是否需要单独列出，还是和options放一起[cite: 1]"
+    },
+    "step_2": {
+      "name": "手术报告 → 大体病理（初步）[cite: 1]",
+      "phase": "SURGERY_GROSS_PATHOLOGY[cite: 1]",
+      "inputs": ["surgery_report", "medical_history", "icd_code", "ops_codes", "number_of_positive_lymph_nodes", "number_of_resected_lymph_nodes[cite: 1]"],
+      "constraints": "零幻觉硬约束：evidence必须直接引用原文短语；未提及填 Not Available；pN若提及转移可输出 pN+，不要求精确分期[cite: 1]",
+      "required_outputs": ["histologic_type + histotype_evidence", "preliminary_pT_stage + pT_stage_evidence", "preliminary_resection_status + resection_evidence", "next_action[cite: 1]"]
+    },
+    "step_3": {
+      "name": "WSI 切片 → 微观病理更新（多模态）[cite: 1]",
+      "phase": "WSI_MICROSCOPIC_CONFIRMATION[cite: 1]",
+      "inputs": ["primary_5x_scalebar.jpg", "primary_20x_scalebar.jpg", "lymphnode_10x_scalebar.jpg", "Step 2 模型输出摘要[cite: 1]"],
+      "required_outputs": [
+        "更新分期 (updated_pT_stage, updated_pN_stage, updated_resection_status, updated_histologic_type)[cite: 1]",
+        "微观侵袭特征 (perineural_invasion_Pn, lymphovascular_invasion_L, vascular_invasion_V)[cite: 1]",
+        "微观形态与分级 (grading_hpv, carcinoma_in_situ, resection_status_carcinoma_in_situ, infiltration_depth_in_mm, closest_resection_margin_in_cm)[cite: 1]",
+        "淋巴结微观特征 (perinodal_invasion, pN_stage)[cite: 1]"
+      ],
+      "points_to_discuss": "如何输入大像素的svs切片影像[cite: 1]"
+    },
+    "step_4": {
+      "name": "最终病理汇总 → 辅助治疗决策[cite: 1]",
+      "phase": "ADJUVANT_TREATMENT_DECISION[cite: 1]",
+      "inputs": ["Steps 1-3 模型自身输出 + prompt规范格式[cite: 1]"],
+      "subtasks": {
+        "task_A": "汇总 Steps 1-3 全部信息，输出完整患者画像 (20%)[cite: 1]",
+        "task_B": "按顺序逐项输出辅助治疗决策 (80%)[cite: 1]"
+      },
+      "adjuvant_output_sequence": ["adjuvant_treatment_intent", "adjuvant_radiotherapy_y_n", "adjuvant_radiotherapy_type", "adjuvant_systemic_therapy_y_n", "adjuvant_systemic_therapy_mode", "adjuvant_chemoradiotherapy_y_n", "reasoning[cite: 1]"],
+      "pathway_switching": "若pT与cT发生升降期，必须明确说明原因，重新定位NCCN节点，将其列为触发辅助治疗的依据。缺失则受 [CASCADE_ERROR] 惩罚[cite: 1]"
+    }
+  },
+  "6_nccn_pathway_mapping": {
+    "oral_cavity": [
+      {"stage": "T1-2, N0", "node": "OR-2 (手术首选；次选根治性放疗RT)[cite: 1]"},
+      {"stage": "T3,N0 / T1-3,N1-3 / T4a,N0-3", "node": "OR-3 (手术首选；拒绝则转ADV)[cite: 1]"},
+      {"stage": "T4b,N0-3 / 无法切除淋巴结", "node": "ADV-1[cite: 1]"},
+      {"stage": "不适合手术 / M1", "node": "ADV-2[cite: 1]"}
+    ],
+    "oropharynx_p16_negative": [
+      {"stage": "T1-2, N0-1", "node": "ORPH-2 (手术/RT标准；放化疗2B类)[cite: 1]"},
+      {"stage": "T3-4a, N0-1", "node": "ORPH-3 (放化疗/手术标准；诱导3类)[cite: 1]"},
+      {"stage": "T1-4a, N2-3", "node": "ORPH-4 (同ORPH-3决策树)[cite: 1]"},
+      {"stage": "T4b,N0-3 / 无法切除", "node": "ADV-1[cite: 1]"},
+      {"stage": "M1", "node": "ADV-2[cite: 1]"}
+    ],
+    "oropharynx_p16_positive": [
+      {"stage": "M1", "node": "ADV-2[cite: 1]"},
+      {"stage": "T1-2, N0", "node": "ORPHPV-1 (手术；根治性放疗RT；临床试验)[cite: 1]"},
+      {"stage": "T0-2, N1（单节点≤3cm）", "node": "ORPHPV-2 (手术/RT标准；放化疗2B类)[cite: 1]"},
+      {"stage": "T0-2,N1（单节点>3cm或同侧≥2个≤6cm）/ T1-2,N2 / T3,N0-2", "node": "ORPHPV-3 (放化疗/手术标准；诱导3类)[cite: 1]"},
+      {"stage": "T0-3,N3 / T4,N0-3", "node": "ORPHPV-4 (放化疗首选；手术；诱导化疗)[cite: 1]"}
+    ],
+    "hypopharynx": [
+      {"stage": "适合喉保留手术（大多数T1,N0；部分T2,N0）", "node": "HYPO-2 (根治性放疗RT；手术；临床试验)[cite: 1]"},
+      {"stage": "需咽切除+全喉切除：T1-3, N0-3", "node": "HYPO-3 (2A类：放疗或同步全身治疗/放疗；手术；诱导化疗)[cite: 1]"},
+      {"stage": "需咽切除+全喉切除：T4a, N0-3", "node": "HYPO-5 (手术标准；非手术3类)[cite: 1]"},
+      {"stage": "T4b,N0-3 / 无法切除/不适合手术", "node": "ADV-1[cite: 1]"},
+      {"stage": "M1", "node": "ADV-2[cite: 1]"}
+    ],
+    "glottic_larynx": [
+      {"stage": "原位癌 / 适合保留喉功能（T1-2,N0；选定T3,N0）", "node": "GLOT-2[cite: 1]"},
+      {"stage": "T3需全喉切除，N0-1", "node": "GLOT-3[cite: 1]"},
+      {"stage": "T3需全喉切除，N2-3", "node": "GLOT-4[cite: 1]"},
+      {"stage": "T4a", "node": "GLOT-6 (手术标准)[cite: 1]"},
+      {"stage": "T4b,N0-3 / 无法切除/不适合手术", "node": "ADV-1[cite: 1]"},
+      {"stage": "M1", "node": "ADV-2[cite: 1]"}
+    ],
+    "supraglottic_larynx": [
+      {"stage": "适合保留喉功能（大多T1-2,N0；部分T3）", "node": "SUPRA-2[cite: 1]"},
+      {"stage": "需全喉切除，T3,N0", "node": "SUPRA-3[cite: 1]"},
+      {"stage": "T4a, N0", "node": "SUPRA-8[cite: 1]"},
+      {"stage": "适合保留喉（T1-2,N+；部分T3,N1）", "node": "SUPRA-5[cite: 1]"},
+      {"stage": "需全喉切除（大多T3,N1-3）", "node": "SUPRA-6[cite: 1]"},
+      {"stage": "T4a, N1-3", "node": "SUPRA-8[cite: 1]"},
+      {"stage": "T4b,N0-3 / 无法切除/不适合手术", "node": "ADV-1[cite: 1]"},
+      {"stage": "M1", "node": "ADV-2[cite: 1]"}
+    ]
+  },
+  "7_adjuvant_treatment_decision_tree": {
+    "risk_grading": [
+      {"level": "高危", "features": "淋巴结外侵犯(perinodal=yes) 和/或 切缘阳性(R1/margin<0.1cm)", "result": "系统治疗+放疗（同步放化疗）", "recommendation": "1类[cite: 1]"},
+      {"level": "其他风险", "features": "pT3/T4、pN2/N3、多淋巴结阳性、LVI+、Pn+、单淋巴结阳性无其他特征", "result": "放疗 或 考虑系统治疗/放疗", "recommendation": "2A类[cite: 1]"},
+      {"level": "无不良特征", "features": "pN0 或 pN1且无其他风险", "result": "观察(end) 或 考虑RT", "recommendation": "—[cite: 1]"}
+    ],
+    "adjuvant_decisions_by_node": {
+      "OR_2": "无阳性->观察; 1个阳性->考虑RT; 高危->系统治疗/放疗; 切缘阳性->再次切除/RT; 其他->RT/考虑系统治疗[cite: 1]",
+      "OR_3": "无不良->考虑RT; 高危->系统治疗/放疗; 切缘阳性->系统治疗/放疗/再次切除; 其他->放疗/考虑系统治疗[cite: 1]",
+      "ORPH_2": "pN0->end; pN1->考虑RT; 高危->系统治疗/放疗; 切缘阳性->再次切除/放疗/考虑系统; 其他->放疗/考虑系统[cite: 1]",
+      "ORPH_3_4": "无不良->RT; 高危->系统治疗/放疗; 其他->放疗/考虑系统[cite: 1]",
+      "ORPHPV_1": "无不良->end; 高危->系统治疗/放疗(2B类); 切缘阳性->再次切除/考虑系统/放疗; 其他->放疗/系统治疗(2B类)[cite: 1]",
+      "ORPHPV_2": "无不良->end; 高危->系统治疗/放疗(2B类); 切缘阳性->再次切除/考虑系统/放疗(2B类); 其他->放疗/系统治疗(2B类)[cite: 1]",
+      "ORPHPV_3": "无不良->end; 高危->系统治疗/放疗; 其他->放疗/系统治疗[cite: 1]",
+      "ORPHPV_4": "无不良->end; 高危->系统治疗/放疗; 其他->放疗/考虑系统[cite: 1]",
+      "HYPO_2": "pN0->end; pN1->考虑RT; 高危->系统治疗/放疗(1类); 切缘阳性->再次切除/考虑系统/放疗; 其他->放疗/考虑系统[cite: 1]",
+      "HYPO_3": "pN0->end; pN1->考虑RT; 高危->系统治疗/放疗(1类); 其他->放疗/考虑系统[cite: 1]",
+      "HYPO_5": "高危->系统治疗/放疗(1类); 其他->放疗/考虑系统[cite: 1]",
+      "GLOT_2": "原位癌->end; T1-T2,N0/部分T3,N0->观察; N1->考虑RT; 淋巴结外侵犯->系统治疗/放疗(1类); 切缘阳性->再次切除/放疗; 其他->放疗[cite: 1]",
+      "GLOT_3": "pN0->end; pN1->考虑RT; 高危->系统治疗/放疗(1类); 其他->放疗/考虑系统[cite: 1]",
+      "GLOT_4": "无不良->end; 高危->系统治疗/放疗(1类); 其他->放疗/考虑系统[cite: 1]",
+      "GLOT_6": "无不良->end; N1->考虑RT; 高危->系统治疗/放疗(1类); 其他->放疗/考虑系统[cite: 1]",
+      "SUPRA_2": "T1-2,N0->end; 单阳性->考虑RT; 淋巴结阳性+切缘阳性->再次切除/RT/考虑系统; 淋巴结外侵犯->系统治疗/放疗(1类)/放疗(2B类); 淋巴结阳性+其他->放疗/考虑系统; T3-T4a,N0->转入SUPRA-3/8[cite: 1]",
+      "SUPRA_3": "pN0->end; pN1->考虑RT; 高危->系统治疗/放疗(1类); 其他->放疗/考虑系统[cite: 1]",
+      "SUPRA_5": "无不良->考虑RT; 高危->系统治疗/放疗(1类); 其他->放疗/考虑系统[cite: 1]",
+      "SUPRA_6": "无不良->考虑RT; 高危->系统治疗/放疗(1类); 其他->放疗/考虑系统[cite: 1]",
+      "SUPRA_8": "高危->系统治疗/放疗(1类); 其他->放疗/考虑系统[cite: 1]"
+    }
+  },
+  "8_scoring_system": {
+    "total_score_structure": [
+      "步骤权重：Step1=25%, Step2=20%, Step3=30%, Step4=25%[cite: 1]",
+      "每步内部：60%×结构化字段 + 40%×LLM-Judge[cite: 1]",
+      "Step4：20%×汇总子任务 + 80%×决策子任务[cite: 1]",
+      "Step1口咽癌附加子任务：独立评分，单独报告[cite: 1]",
+      "Case总分：Σ(权重×步骤分) × safety_multiplier[cite: 1]",
+      "safety_multiplier：max(0.5, 1.0 - critical_error_count × 0.2)[cite: 1]",
+      "双轨报告：AR Score（级联传播）和 IND Score（每步注入GT）[cite: 1]"
+    ],
+    "structured_field_scoring": [
+      {"type": "分期（cT/pT/cN/pN）", "full_1.0": "精确匹配", "partial_0.5": "相邻分期", "zero_0": "跨越两级+[cite: 1]"},
+      {"type": "NCCN节点", "full_1.0": "精确匹配", "partial_0.5": "同部位相邻节点", "zero_0": "不同部位节点[cite: 1]"},
+      {"type": "推荐等级", "full_1.0": "精确", "partial_0.5": "1类↔2A（方向对）", "zero_0": "1类↔3类[cite: 1]"},
+      {"type": "无推荐等级节点", "full_1.0": "不评分此字段", "partial_0.5": "—", "zero_0": "—[cite: 1]"},
+      {"type": "二元yes/no（🔴字段）", "full_1.0": "精确；Cannot Determine+合理理由=满分", "partial_0.5": "—", "zero_0": "反向输出[cite: 1]"},
+      {"type": "R0/R1/R2", "full_1.0": "精确", "partial_0.5": "R0↔R1=0.3", "zero_0": "R0↔R2[cite: 1]"},
+      {"type": "数值（DOI,margin）", "full_1.0": "误差≤0.05cm/1mm", "partial_0.5": "误差0.05~0.1cm/1~3mm", "zero_0": "超出范围[cite: 1]"},
+      {"type": "辅助治疗yes/no", "full_1.0": "精确", "partial_0.5": "—", "zero_0": "反向（触发CSS惩罚）[cite: 1]"}
+    ],
+    "css_penalties": [
+      {"error": "漏报perinodal", "flag": "[PERINODAL_MISS]", "penalty": "Step3×0.3；CSS-0.30[cite: 1]"},
+      {"error": "漏开放化疗", "flag": "[CHEMORT_MISSED]", "penalty": "Step4决策×0.2；CSS-0.30[cite: 1]"},
+      {"error": "阶段时序混淆", "flag": "[TEMPORAL_VIOLATION]", "penalty": "违规字段清零[cite: 1]"},
+      {"error": "幻觉引用", "flag": "[HALLUCINATION_FLAG]", "penalty": "evidence字段清零；CSS-0.10[cite: 1]"},
+      {"error": "无WSI输出yes/no", "flag": "[LN_WSI_HALLUC]", "penalty": "该字段×0.2；CSS-0.10[cite: 1]"},
+      {"error": "升期后路径未切换", "flag": "[CASCADE_ERROR]", "penalty": "额外-0.15[cite: 1]"}
+    ]
+  },
+  "9_special_case_handling": {
+    "special_cases": [
+      {"condition": "非手术首选", "meta_marker": "is_non_surgical: true", "handling": "Step1后直接跳Step4，Step2/3标记NA[cite: 1]"},
+      {"condition": "声门/声门上区分", "meta_marker": "icd_codes_larynx_subtype", "handling": "大模型按ICD归类，专家全量检查[cite: 1]"},
+      {"condition": "病史透露cTcN", "meta_marker": "contains_cTcN_leak: true", "handling": "删除泄露内容，作为信息更新能力测试[cite: 1]"},
+      {"condition": "患者拒绝辅助", "meta_marker": "patient_declined: true", "handling": "按 guideline_recommends 字段评分[cite: 1]"},
+      {"condition": "数据矛盾患者", "meta_marker": "data_contradiction: true", "handling": "专家修正后提供正确GT[cite: 1]"},
+      {"condition": "531号口咽癌p16未测", "meta_marker": "建议剔除", "handling": "不纳入评测集[cite: 1]"}
+    ],
+    "pNX_handling": [
+      {"scenario": "正常案例", "cN": "cN0/cN1/cN2/cN3", "pN": "pN0/pN1/pN2/pN3", "handling": "正常处理[cite: 1]"},
+      {"scenario": "未做淋巴颈清", "cN": "cN0", "pN": "pNX", "handling": "术前评估阴性，未做颈清，无病理结果[cite: 1]"},
+      {"scenario": "颈清但未评估", "cN": "cN+", "pN": "pNX", "handling": "数据缺失，建议排除或另设难度层次问题检查是否存在幻觉[cite: 1]"}
+    ]
+  },
+  "10_points_to_discuss": [
+    "Step 1（初始治疗决策）的输出格式：关于nccn指南给出的手术内容，商榷是需要将其单独列出，还是应当和治疗选项（options）放在一起以符合指南的格式。[cite: 1]",
+    "Step 3（WSI 切片更新）的输入内容：商榷该步骤的具体输入物，包括带比例尺的原发灶全景图（5x）和细节图（20x）、带比例尺的淋巴结图（10x），以及 Step 2 的模型输出摘要。[cite: 1]",
+    "Step 3（WSI 切片更新）的影像格式处理：商榷如何实际向模型输入大像素的 svs 切片影像。[cite: 1]",
+    "Step 4（辅助治疗决策）的子任务设置：商榷“子任务 A”（要求汇总 Steps 1-3 的全部信息，输出包含所有 Cannot Determine 字段的完整患者画像）是否具有必要性。[cite: 1]",
+    "评分体系：整个第 8 节“评分体系”的具体评判细则尚未完全敲定，需要进一步商榷。[cite: 1]"
+  ]
+}
