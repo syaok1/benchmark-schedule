@@ -54,8 +54,7 @@
   "current_phase": "STAGING_AND_TREATMENT_DECISION",
   "nccn_pathway_node": "HYPO-3",
   "nccn_pathway_reasoning": "肿瘤部位→T→N→节点的完整推演逻辑",
-  "recommended_treatment_options": ["放疗或同步全身治疗/放疗", "手术", "诱导化疗", "临床试验"],
-  "surgery_detail": "部分或全喉下咽切除术+颈清±甲状腺切除+气管旁清扫",
+  "recommended_treatment_options": ["放疗或同步全身治疗/放疗", "部分或全喉下咽切除术+颈清±甲状腺切除+气管旁清扫", "诱导化疗", "临床试验"],
   "recommendation_category": "2A类",
   "next_action": "SURGERY_EXECUTION"
 }
