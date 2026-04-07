@@ -314,12 +314,19 @@ Case_XXXX/
 | 不适合手术 / M1 | ADV-2 |
 
 **OR-2**（推荐等级：无固定等级）：
-- 手术（首选）；次选根治性放疗 RT
-- 手术内容：原发灶切除±颈清 或 原发灶切除+SLN活检（SLN pN0→end；pN+或鉴别不成功→颈清）
+- 手术（首选）:原发灶切除±颈清 或 原发灶切除+SLN活检（SLN pN0→end；pN+或鉴别不成功→颈清）
+- 根治性放疗 RT
+- Surgery(preferred):Resection of primary± neck dissection k(guided by tumor location, depth of invasion, and imaging) or  Resection of primary + sentinel lymph node (SLN)biopsy
+- Definitive RT
 
 **OR-3**（推荐等级：无固定等级）：
-- 手术（首选）；拒绝则转ADV
-- 手术内容：N0/N1/N2a-b/N3：原发灶切除+/-同侧或双侧颈清；N2c：原发灶切除+/-同侧或双侧颈清
+- 手术（首选）：N0/N1/N2a-b/N3：原发灶切除+/-同侧或双侧颈清；N2c：原发灶切除+/-同侧或双侧颈清；
+- 临床实验
+- 拒绝手术转ADV-1
+- Surgery (preferred)：N0,N1,N2a–b,N3：Resection of primary ± ipsilateral, or bilateral neck dissection；N2c(bilateral)：Resection of
+primary and bilateral neck dissection
+- Clinical trials
+- Selected patients who decline surgery：ADV-1
 
 ---
 
@@ -329,119 +336,228 @@ Case_XXXX/
 | T1-2, N0-1 | ORPH-2 |
 | T3-4a, N0-1 | ORPH-3 |
 | T1-4a, N2-3 | ORPH-4 |
-| T4b,N0-3 / 无法切除 | ADV-1 |
-| M1 | ADV-2 |
+| T4b,N0-3 / 无法切除或不适合手术 Unresectable or unfit for surgery | ADV-1 |
+| Metastatic (M1) disease initial presentation| ADV-2 |
 
 注：NCCN 2026 中 ORPH-3/4 决策树相同，但手术细节因病情不同有区别
 
 **ORPH-2**（手术/RT标准；放化疗2B类）：
-- 手术；根治性放疗RT；同步全身治疗/放疗（仅T1-2,N1，2B类）；临床试验
-- 手术内容：原发灶切除+同侧或双侧颈清
+- 原发灶切除+同侧或双侧颈清
+- 根治性放疗RT
+- 同步全身治疗/放疗（仅T1-2,N1，2B类）
+- 临床试验
+- Resection of primary and ipsilateral or bilateral neck dissection
+- Definitive RT
+- For T1–2,N1 only:Concurrent systemic therapy/RT (category 2B)
+- Clinical trials
 
 **ORPH-3/4**（放化疗/手术标准；诱导3类）：
-- 同步全身治疗/放疗；手术；诱导化疗（3类）随后进行放疗或全身治疗/放疗；临床试验
-- 手术内容：原发灶切除+同侧或双侧颈清
+- 同步全身治疗/放疗；
+- 原发灶切除+同侧或双侧颈清；
+- 诱导化疗（3类）随后进行放疗或全身治疗/放疗；
+- 临床试验；
+- Concurrent systemic therapy/ RT；
+- Resection of primary and ipsilateral or bilateral neck dissection；
+- Induction chemotherapy (category 3) followed by RT or systemic therapy/RT ；
+- Clinical trials
 
 ---
 
 ### 口咽癌 p16阳性 (Oropharynx p16+/HPV+)
 | 临床分期 | 节点 |
 |----------|------|
-| M1 | ADV-2 |
+| Metastatic (M1) disease initial presentation | ADV-2 |
 | T1-2, N0 | ORPHPV-1 |
-| T0-2, N1（单节点≤3cm） | ORPHPV-2 |
-| T0-2,N1（单节点>3cm或同侧≥2个≤6cm）/ T1-2,N2 / T3,N0-2 | ORPHPV-3 |
+| T0-2, N1（单节点≤3cm）(single node ≤3 cm) | ORPHPV-2 |
+| T0-2,N1（单节点>3cm或同侧≥2个≤6cm） (single node >3 cm, or 2 or more ipsilateral nodes ≤6 cm)/ T1-2,N2 / T3,N0-2 | ORPHPV-3 |
 | T0-3,N3 / T4,N0-3 | ORPHPV-4 |
 
-**ORPHPV-1**（无固定等级）：手术；根治性放疗RT；临床试验
-- 手术内容：原发灶切除+同侧或双侧选择性颈清
+**ORPHPV-1**（无固定等级）：
+- 原发灶切除+同侧或双侧选择性颈清；
+- 根治性放疗RT；
+- 临床试验；
+- Resection of primary and ipsilateral or bilateral selective neck dissection；
+- Definitive RT；
+- Clinical trials
 
-**ORPHPV-2**（手术/RT标准；放化疗2B类）：手术；根治性放疗RT；同步放化疗（2B类）；临床试验
-- 手术内容：原发灶切除+同侧或双侧颈清
+**ORPHPV-2**（手术/RT标准；放化疗2B类）：
+- 原发灶切除+同侧或双侧颈清
+- 根治性放疗RT
+- 同步放化疗（2B类）；
+- 临床试验
+- Resection of primary and ipsilateral or bilateral selective neck dissection；
+- Definitive RT；
+- Concurrent systemic therapy/RT (category 2B)；
+- Clinical trials
 
-**ORPHPV-3**（放化疗/手术标准；诱导3类）：同步全身治疗/放疗；手术；诱导化疗（3类）随后进行放疗或全身治疗/放疗；临床试验
-- 手术内容：原发灶切除+同侧或双侧颈清
+**ORPHPV-3**（放化疗/手术标准；诱导3类）：
+- 同步全身治疗/放疗；
+- 原发灶切除+同侧或双侧颈清；
+- 诱导化疗（3类）随后进行放疗或全身治疗/放疗；
+- 临床试验
+- Concurrent systemic therapy/RT ；
+- Resection of primary and ipsilateral or bilateral neck dissection；
+- Induction chemotherapy (category 3) followed by RT or systemic therapy/RT;
+- Clinical trials
 
-**ORPHPV-4**（放化疗首选）：同步全身治疗/放疗（首选）；手术；诱导化疗（3类），随后进行放疗或同步全身治疗/放疗；临床试验
-- 手术内容：原发灶切除+同侧或双侧颈清
+
+**ORPHPV-4**（放化疗首选）：
+- 同步全身治疗/放疗（首选）；
+- 原发灶切除+同侧或双侧颈清;
+- 诱导化疗（3类），随后进行放疗或同步全身治疗/放疗；
+- 临床试验
+- Concurrent systemic therapy/RT (preferred);
+- Resection of primary and ipsilateral or bilateral neck dissection;
+- Induction chemotherapy (category 3) followed by RT or systemic therapy/RT;
+- Clinical trials
 
 ---
 
 ### 下咽癌 (Hypopharynx)
 | 临床分期 | 节点 |
 |----------|------|
-| 适合喉保留手术（大多数T1,N0；部分T2,N0） | HYPO-2 |
-| 需咽切除+全喉切除：T1-3, N0-3 | HYPO-3 |
-| 需咽切除+全喉切除：T4a, N0-3 | HYPO-5 |
-| T4b,N0-3 / 无法切除/不适合手术 | ADV-1 |
-| M1 | ADV-2 |
+| 适合喉保留手术（大多数T1,N0；部分T2,N0）Amenable to larynx-preserving (conservation) surgery (most T1,N0, and selected T2,N0) | HYPO-2 |
+| 需咽切除+全喉切除Advanced cancer requiring (amenable to) pharyngectomy with total laryngectomy：T1-3, N0-3 | HYPO-3 |
+| 需咽切除+全喉切除Advanced cancer requiring (amenable to) pharyngectomy with total laryngectomy：T4a, N0-3 | HYPO-5 |
+| T4b,N0-3 / 无法切除Unresectable nodal disease/不适合手术Unfit for surgery | ADV-1 |
+| Metastatic (M1) disease at initial presentation | ADV-2 |
 
 注：p16 检测对下咽癌无临床意义，不要求
 
-**HYPO-2**（无固定等级）：根治性放疗RT；手术；临床试验
-- 手术内容：部分喉下咽切除（开放/内镜）+同侧或双侧颈清±甲状腺切除+气管前和同侧气管旁淋巴结清扫
+**HYPO-2**：
+- 根治性放疗RT；
+- 部分喉下咽切除（开放/内镜）+同侧或双侧颈清±甲状腺切除+气管前和同侧气管旁淋巴结清扫;
+- 临床试验
+- Definitive RT;
+- Partial laryngopharyngectomy (open or endoscopic) + ipsilateral or bilateral neck dissection ± thyroidectomy, and pretracheal and ipsilateral paratracheal lymph node dissection;
+- Clinical trials
 
-**HYPO-3**（2A类）：放疗或同步全身治疗/放疗；手术；诱导化疗；临床试验
-- 手术内容：部分或全喉下咽切除+同侧或双侧颈清±甲状腺切除+气管前和同侧气管旁淋巴结清扫
+**HYPO-3**：
+- 放疗或同步全身治疗/放疗；
+- 部分或全喉下咽切除+同侧或双侧颈清±甲状腺切除+气管前和同侧气管旁淋巴结清扫；
+- 诱导化疗；
+- 临床试验;
+- Concurrent systemic therapy/RT;
+- Partial or total laryngopharyngectomy + ipsilateral or bilateral neck dissection ± thyroidectomy and pretracheal and ipsilateral paratracheal lymph node dissection;
+- Induction chemotherapy;
+- Clinical trials
 
-**HYPO-5**（手术标准；非手术3类）：手术；诱导化疗（3类）；同步全身治疗/放疗（3类）；临床试验
-- 手术内容：全喉下咽切除+同侧或双侧颈清±甲状腺切除+气管前和同侧气管旁淋巴结清扫
+**HYPO-5**：
+- 全喉下咽切除+同侧或双侧颈清±甲状腺切除+气管前和同侧气管旁淋巴结清扫；
+- 诱导化疗（3类）；
+- 同步全身治疗/放疗（3类）；
+- 临床试验;
+- Total laryngopharyngectomy + ipsilateral or bilateral neck dissection ± thyroidectomy, after ipsilateral or bilateral paratracheal lymph node dissection;
+- Induction chemotherapy(category 3);
+- Concurrent systemic therapy/RT (category 3);
+- Clinical trial
 
 ---
 
 ### 声门喉癌 (Glottic Larynx)
 | 临床分期 | 节点 |
 |----------|------|
-| 原位癌 / 适合保留喉功能（T1-2,N0；选定T3,N0） | GLOT-2 |
-| T3需全喉切除，N0-1 | GLOT-3 |
-| T3需全喉切除，N2-3 | GLOT-4 |
+| 原位癌Carcinoma in situ  | GLOT-2 |
+| 适合保留喉功能（T1-2,N0；选定T3,N0）Amenable to larynx-preserving(conservation) surgery(T1–T2,N0 or select T3,N0 | GLOT-2 |
+| T3需全喉切除requiring (amenable to) total laryngectomy，N0-1 | GLOT-3 |
+| T3需全喉切除requiring (amenable to) total laryngectomy，N2-3 | GLOT-4 |
 | T4a | GLOT-6 |
-| T4b,N0-3 / 无法切除/不适合手术 | ADV-1 |
-| M1 | ADV-2 |
+| T4b,N0-3 / 无法切除Unresectable nodal disease/不适合手术Unfit for surgery | ADV-1 |
+| Metastatic (M1) disease at initial presentation | ADV-2 |
 
-**GLOT-2**（无固定等级）：
-- 原位癌：内镜切除术（首选）或放疗
-- 适合保留喉功能（T1-T2,N0或选定T3,N0）：放疗；手术
-- 手术内容：根据指征行部分喉切除术 / 内镜或开放性切除术+颈清
+**GLOT-2**：
+- 原位癌：内镜切除术（首选）or 放疗
+- 适合保留喉功能（T1-T2,N0或选定T3,N0）：放疗 or 根据指征行部分喉切除术 / 内镜或开放性切除术+颈清
+- Carcinoma in situ：Endoscopic resection (preferred) or RT；
+- Amenable to larynx-preserving(conservation) surgery (T1–T2,N0 or select T3,N0):RT or Partial laryngectomy/endoscopic or open resection k as indicated and neck dissection as indicated
 
-**GLOT-3**（无固定等级）：同步全身治疗/放疗（不适合全身治疗时单纯RT）；手术；诱导化疗；临床试验
-- 手术内容：同侧或双侧颈清+考虑甲状腺切除以清除中央区淋巴结
+**GLOT-3**：
+- 同步全身治疗/放疗（不适合全身治疗时单纯RT）；
+- 同侧或双侧颈清+考虑甲状腺切除以清除中央区淋巴结；
+- 诱导化疗；
+- 临床试验
+- Concurrent systemic therapy/RT or RT if patient not candidatefor systemic therapy/RT;
+- Surgery, including ipsilateral or bilateral neck dissection; consider thyroidectomy to clear central compartment nodes;
+- Induction chemotherapy;
+- Clinical trials
+  
+**GLOT-4**：
+- 同步全身治疗/放疗；
+- 根据指征行喉切除联合甲状腺切除+同侧或双侧颈清+气管前和同侧气管旁淋巴结清扫；
+- 诱导化疗；
+- 临床试验
+- Concurrent systemic therapy/RT;
+- Surgery:Laryngectomy with thyroidectomy as indicated, ipsilateral or bilateral neck dissection, and pretracheal and ipsilateral paratracheal lymph node dissection;
+- Induction chemotherapy;
+- Clinical trials
 
-**GLOT-4**（无固定等级）：同步全身治疗/放疗；手术；诱导化疗；临床试验
-- 手术内容：根据指征行喉切除联合甲状腺切除+同侧或双侧颈清+气管前和同侧气管旁淋巴结清扫
-
-**GLOT-6**（手术标准）：T4a,N0-3手术（首选）；拒绝或入选T4a患者则考虑放化疗/临床试验/诱导化疗
-- 手术内容：同侧或双侧颈淋巴结清扫+为清除中央区淋巴结而进行的甲状腺切除术（特别是甲状腺存在喉外侵犯及明显声门下扩展时）
+**GLOT-6**：
+- T4a,N0-3:手术,同侧或双侧颈淋巴结清扫+为清除中央区淋巴结而进行的甲状腺切除术（特别是甲状腺存在喉外侵犯及明显声门下扩展时）；
+- 拒绝或入选T4a患者:考虑放化疗/临床试验/诱导化疗
+- T4a,N0-3:Surgery, including ipsilateral or bilateral neck dissection; thyroidectomy to clear central compartment nodes, especially when there is extralaryngeal extension of the thyroid gland and significant subglottic extension
+- Selected patients with T4a primary who decline surgery:Consider concurrent systemic therapy/RT or Clinical trial for function-preserving surgical or RT management or Induction chemotherapy
 
 ---
 
 ### 声门上喉癌 (Supraglottic Larynx)
 | 临床分期 | 节点 |
 |----------|------|
-| 适合保留喉功能（大多T1-2,N0；部分T3） | SUPRA-2 |
-| 需全喉切除，T3,N0 | SUPRA-3 |
+| 适合保留喉功能（大多T1-2,N0；部分T3）Amenable to larynx-preserving(conservation) surgery (most T1–2,N0; selected T3) | SUPRA-2 |
+| 需全喉切除，T3,N0 Requiring (amenable to) total laryngectomy (T3,N0)| SUPRA-3 |
 | T4a, N0 | SUPRA-8 |
-| 淋巴结阳性 → SUPRA-4分流 | |
-| → 适合保留喉（T1-2,N+；部分T3,N1） | SUPRA-5 |
-| → 需全喉切除（大多T3,N1-3） | SUPRA-6 |
+| 淋巴结阳性Node-positive disease → SUPRA-4分流 | |
+| → 适合保留喉（T1-2,N+；部分T3,N1）Amenable to larynx-preserving(conservation) surgery (T1–2,N+ and selected T3,N1) | SUPRA-5 |
+| → 需全喉切除（大多T3,N1-3）Requiring (amenable to) total laryngectomy (Most T3,N1–3) | SUPRA-6 |
 | → T4a, N1-3 | SUPRA-8 |
-| T4b,N0-3 / 无法切除/不适合手术 | ADV-1 |
-| M1 | ADV-2 |
+| → T4b,N1–3 or Unresectable nodal disease or Unfit for surgery | ADV-1 |
+| T4b,N0-3 / 无法切除Unresectable nodal disease/不适合手术Unfit for surgery | ADV-1 |
+| Metastatic (M1) disease at initial presentation | ADV-2 |
 
-**SUPRA-2**（无固定等级）：手术（适合保留喉功能者：大多数T1-2,N0；选定T3期）；RT
-- 手术内容：内镜或开放部分喉切除+颈清
+**SUPRA-2**：
+- 内镜或开放部分喉切除+颈清；
+- 全身RT；
+- Endoscopic or open partial laryngectomy + neck dissectionh
+- Definitive RT
 
-**SUPRA-3**（无固定等级）：同步全身治疗/放疗或单纯RT（患者身体不适合时）；手术；诱导化疗；临床试验
-- 手术内容：喉切除术+甲状腺切除术+同侧、中央组或双侧颈清扫术
+**SUPRA-3**：
+- 同步全身治疗/放疗；
+- RT（患者身体不适合时）；
+- 喉切除术+甲状腺切除术+同侧、中央组或双侧颈清扫术；
+- 诱导化疗；
+- 临床试验；
+- Concurrent systemic therapy/RT ；
+- RT if patient not medical candidate for concurrent systemic therapy/RT；
+- Laryngectomy, thyroidectomy and with ipsilateral, central, or bilateral neck dissection；
+- Induction chemotherapy；
+- Clinical trials
 
-**SUPRA-5**（无固定等级）：同步放化疗或RT或根治性放疗（肿瘤负荷较低T1-2,N1或不适合全身治疗）；手术；诱导化疗；临床试验
-- 手术内容：内镜或开放部分喉切除+颈清
+**SUPRA-5**：
+- 同步放化疗/RT；
+- 根治性放疗（肿瘤负荷较低T1-2,N1或不适合全身治疗）；
+- 内镜或开放部分喉切除+颈清；
+- 诱导化疗；
+- 临床试验；
+- Concurrent systemic therapy/RT；
+- Definitive RT for low-volume disease (T1–2,N1) or patients medically unfit for systemic therapy；
+- Endoscopic or open partial laryngectomy and neck dissection(s);
+- Induction chemotherapy；
+- Clinical trials
 
-**SUPRA-6**（无固定等级）：同步全身治疗/放疗；手术；诱导化疗；临床试验
-- 手术内容：喉切除+同侧甲状腺切除+颈清
+**SUPRA-6**：
+- 同步全身治疗/放疗；
+- 喉切除+同侧甲状腺切除+颈清；
+- 诱导化疗；
+- 临床试验;
+- Concurrent systemic therapy/RT；
+- Laryngectomy, ipsilateral thyroidectomy with neck dissection;
+- Induction chemotherapy；
+- Clinical trials
 
-**SUPRA-8**（无固定等级）：手术（T4a,N0-N3首选）；拒绝则考虑放化疗/临床试验/诱导化疗
-- 手术内容：内镜或开放部分喉切除+颈部淋巴结清扫术
+**SUPRA-8**（无固定等级）：
+- T4a,N0-N3：内镜或开放部分喉切除+颈部淋巴结清扫术；
+- 拒绝手术：则考虑放化疗/临床试验/诱导化疗；
+- T4a,N0–N3：Endoscopic or open partial laryngectomy and neck dissection(s)；
+- Patients with T4a,N0–N3 disease who decline surgery：Consider concurrent systemic therapy/RT or Clinical trial or Induction chemotherapy
 
 ---
 
