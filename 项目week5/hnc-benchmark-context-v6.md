@@ -1,8 +1,8 @@
 # HNC-Benchmark 项目上下文文档
-# 版本：v7.0 | 更新：2026-04-07（Step 1/2 合并，删除 describe_focus 合成，更正部分文本错误与以及不现实方案）
+# 版本：v7.0 | 更新：2026-04-07（更正部分文本错误与以及不现实方案）
 # 数据集：https://www.cancerimagingarchive.net/collection/hancock/
 # 指南：NCCN Head and Neck Cancers 2026.V1
-# 状态：设计阶段完成，进入初步搭建阶段
+# 状态：设计阶段完成，进入初步搭建阶段,目前需确定详尽的
 
 ---
 
@@ -18,7 +18,7 @@
 
 **两种模型角色**：
 - **被测模型（Candidate MLLM）**：接收输入，输出严格 JSON，走完四步推理链
-- **评判模型（Judge LLM）**：评判自由文本字段（reasoning），用预定义标准逐条 T/F
+- **评判模型（Judge LLM）**：评判自由文本字段（reasoning），用预定义标准逐条评估 T/F
 
 ---
 
