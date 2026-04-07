@@ -1,5 +1,5 @@
 # HNC-Benchmark 项目上下文文档
-# 版本：v6.0 | 更新：2026-04-06（Step 1/2 合并，删除 describe_focus 合成，更正部分文本错误与以及不现实方案）
+# 版本：v7.0 | 更新：2026-04-07（Step 1/2 合并，删除 describe_focus 合成，更正部分文本错误与以及不现实方案）
 # 数据集：https://www.cancerimagingarchive.net/collection/hancock/
 # 指南：NCCN Head and Neck Cancers 2026.V1
 # 状态：设计阶段完成，进入初步搭建阶段
