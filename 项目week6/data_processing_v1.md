@@ -212,3 +212,75 @@
 ---
 
 以上方案供您审阅，请对各条目进行增删修改（特别是B5的ICD专家全量检查是否资源允许、A2的Evidence Anchor是否全量专家还是抽样）。
+
+# HNC-Benchmark 案例数据映射与处理方案 (Ground Truth Dictionary)
+
+本文档定义了评测案例（Case）全局及各阶段数据的输入输出规范、数据来源、大模型辅助提取规则以及专家标注级别。
+
+---
+
+## 1. 全局与 Meta 属性 (Case 路由与质控)
+
+| 字段名称 | 字段含义 (Description) | 数据类别 | 数据来源与处理方案 | 大模型辅助提取 | 专家标注级别 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `case_id` / `patient_id` | **患者唯一标识符**。用于关联结构化数据、文本和影像的唯一键值。 | META | `clinical_data.json` 直接读取。 | 否 | 否 |
+| `cancer_subtype` | **头颈癌亚型**。决定使用哪条NCCN指南路径的关键分类。 | META / GT | 取决于原发灶。**喉癌需根据 ICD Code 拆分**（声门/声门上）。 | **是** (归类喉癌) | **B级** (全量检查喉癌归类) |
+| `contains_cTcN_leak` | **临床分期泄露标记**。标示病史或手术报告原文中是否不慎写出了“cT2N1”等直接分期信息。 | META | 扫描病史与手术报告。匹配到疑似描述时标记为 true 并删去泄露文本。 | **是** (兜底检测) | 否 |
+| `data_contradiction` | **数据矛盾标记**。标示 Hancock 原始数据集中存在的逻辑冲突。 | META | 规则比对（如辅助治疗标志位与具体药物枚举冲突）。 | **是** (异常筛选) | **A级** (修正GT) |
+| `patient_declined_adjuvant`| **患者拒绝治疗标记**。标示指南推荐了辅助治疗，但真实世界中患者因个人原因未执行的案例。 | META | 规则比对指南推荐与实际治疗结果。（或在step4中加入不愿治疗字段） | **是** (筛选偏差) | **A级** (确认偏差) |
+
+---
+
+## 2. Step 1：STAGING_AND_TREATMENT_DECISION（分期与初始决策）
+
+| 字段名称 | 字段含义 (Description) | 数据类别 | 数据来源与处理方案 | 大模型辅助提取 | 专家标注级别 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `demographics` | **人口统计学信息**。如年龄、性别、吸烟史等基础临床画像。 | INPUT | `clinical_data.json` 直接读取。 | 否 | 否 |
+| `cT_stage` / `cN_stage` | **临床分期 (Clinical Stage)**。术前通过影像学和体格检查得出的肿瘤和淋巴结评估。 | INPUT | **需核实来源**。暂定从 `pathological_data.json` 反推或从病史抽取。 | **是** (若需从病史抽取) | 否 |
+| `medical_history` | **现病史与既往史**。患者入院时的症状描述及过去病史。 | INPUT | `histories_english/` 读取。需联动泄露检测，删除分期描述。 | 否 | 否 |
+| `hpv_association_p16` | **p16/HPV 病毒检测结果**。口咽癌分期的核心决定因素，阳性与阴性走不同路径。 | INPUT(隐藏)| 默认扣留。仅当口咽癌患者被测模型主动提问时，通过交互脚本释放。 | 否 | 否 |
+| `nccn_pathway_node` | **NCCN 指南节点**。当前患者病情在2026.V1版指南中所对应的具体决策树坐标。 | OUTPUT/GT | GT 由 `nccn_router.py` 严格按 v7 规则生成。 | 否 | **A级** (抽样20%) |
+| `treatment_options` | **初始治疗方案**。指南推荐的术前/首选治疗手段（合并了原“手术细节”与“综合方案”）。| OUTPUT/GT | GT 映射自节点规则。 | 否 | 否 |
+| `recommendation_category` | **推荐证据等级**。指南给出的医学证据级别（1类、2A类、2B类、3类）。 | OUTPUT/GT | 映射自节点规则。缺失时不考核该字段。 | 否 | 否 |
+| `nccn_pathway_reasoning` | **分期与决策推理链**。解释为什么选定该节点及方案的医学逻辑。 | OUTPUT | 被测模型自由文本推理。 | - | - |
+
+---
+
+## 3. Step 2：SURGERY_GROSS_PATHOLOGY（手术与大体病理）
+
+| 字段名称 | 字段含义 (Description) | 数据类别 | 数据来源与处理方案 | 大模型辅助提取 | 专家标注级别 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `surgery_report` | **手术记录单**。外科医生对术中发现及切除过程的纯文本描述。 | INPUT | `reports_english/` 读取。**核心清洗：必须删去医生撰写的辅助治疗建议**。| **是** (识别并删除建议) | 否 |
+| `OPS_codes` / `lab_tests` | **手术操作码与实验室检查**。配合手术报告补充临床背景。 | INPUT | `clinical_data.json` 或对应结构化表格。 | 否 | 否 |
+| `histologic_type` | **组织学亚型**。肿瘤的具体病理类型（如鳞状细胞癌）。 | OUTPUT/GT | GT 从 `pathological_data.json` 读取。 | 否 | 否 |
+| `preliminary_pT_stage` | **初步病理 T 分期**。仅凭手术报告文字（肉眼所见）能推断出的保底分期。 | OUTPUT/GT | GT 从手术报告用正则/规则/大模型提取。 | 借助大模型兜底，部分信息只靠正规/规则可能无法从手术报告提取 | **B级**  |
+| `preliminary_pN_stage` | **初步淋巴结状态**。术中肉眼或触诊是否发现疑似转移淋巴结。 | OUTPUT | 模型按报告输出“至少pTX”或“pN+”，不设精细 GT。 | 借助大模型兜底，部分信息只靠正规/规则可能无法从手术报告提取 | **B级**  |
+| `resection_status` | **切缘状态 (Margin)**。R0(完全切除), R1(显微残留), R2(肉眼残留)。 | OUTPUT/GT | GT 从 `pathological_data.json` 读取。 | 否 | 否 |
+| `*_evidence_anchors` | **证据锚点 (防幻觉约束)**。证明上述结论的手术报告**纯文本原句引用**。 | GT | 无对应文本则标注 NULL。 | **是** (提取候选片段) | **A级** (100%确认防幻觉)|
+
+---
+
+## 4. Step 3：WSI_MICROSCOPIC_CONFIRMATION（微观病理确认）
+
+| 字段名称 | 字段含义 (Description) | 数据类别 | 数据来源与处理方案 | 大模型辅助提取 | 专家标注级别 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `WSI_images` | **全尺寸切片图像 (Whole Slide Image)**。病理科显微镜下的细胞学图像（原发灶+淋巴结）。| INPUT | 切片抽取脚本生成。缺失淋巴结图时传入占位符符及缺失原因。 | 否 | 否 |
+| `updated_pT` / `updated_pN` | **最终病理分期 (Pathological Stage)**。结合显微镜观察后确定的最终 T/N 准确分期。| OUTPUT/GT | GT 从 `pathological_data.json` 直接读取。处理 `pNX` 逻辑。 | 否 | 否 |
+| `perinodal_invasion` | **淋巴结外侵犯 (ENE)**。肿瘤细胞突破淋巴结包膜（🔴最致命的高危特征）。 | OUTPUT/GT | GT 从 `pathological_data.json` 直接读取。 | 否 | 否 |
+| 侵袭特征 (LVI, PNI) | **脉管与神经侵犯**。肿瘤是否侵入淋巴血管 (LVI) 或神经周围 (PNI)（🟡中度危险特征）。| OUTPUT/GT | GT 从 `pathological_data.json` 直接读取。 | 否 | 否 |
+| 形态/测量 (DOI, Margin)| **浸润深度与切缘距离**。肿瘤侵入组织的毫米数，及距离最近切口的物理距离。 | OUTPUT/GT | GT 从 `pathological_data.json` 直接读取。 | 否 | 否 |
+| `high_risk_gross_signals` | **高危宏观征象**。探讨从大体宏观影像或术中描述预测微观高危特征的关联性。 | META/辅助 | 从病理诊断推导可能的高危宏观表现。 | **是** (生成对应关系) | **B级** (抽样检查) |
+
+---
+
+## 5. Step 4：ADJUVANT_TREATMENT_DECISION（辅助治疗决策）
+
+| 字段名称 | 字段含义 (Description) | 数据类别 | 数据来源与处理方案 | 大模型辅助提取 | 专家标注级别 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 前置步骤输出汇总 | **患者全局状态快照**。聚合前三步的信息，测试模型长上下文的记忆与提炼能力。 | INPUT | 拼装 Step 1-3 的被测模型输出或 GT。 | 否 | 否 |
+| `staging_upgrade_occurred` | **分期升降标志**。病理分期相比最初的临床分期是否变得更严重（升期）。 | PROMPT参数 | 规则计算，在 Prompt 中显式要求模型判定，测试其时序追踪能力。 | 否 | 否 |
+| `adjuvant_treatment_intent`| **辅助治疗目的**。术后治疗的意图（curative 根治性 / palliative 姑息性 / no 无需治疗）。 | OUTPUT/GT | GT 由 `adjuvant_router.py` 生成。 | 否 | 否 |
+| `adjuvant_radiotherapy_y_n`| **是否需要辅助放疗 (RT)**。依据病理是否出现不良特征决定。 | OUTPUT/GT | GT 依据不良病理特征分级表映射。 | 否 | 否 |
+| `adjuvant_systemic_y_n` | **是否需要辅助全身治疗 (化疗等)**。通常只有发生高危特征才触发。 | OUTPUT/GT | GT 依据不良病理特征分级表映射。 | 否 | 否 |
+| 具体方案验证 (RT/mode) | **具体方案/药物判别**。判断真实世界中该患者使用的放疗模式或化疗组合是否符合指南要求。| OUTPUT/GT | Prompt 提供 GT 中记录的药物/放射模式，询问模型是/否。 | 否 | 否 |
+| `reasoning` | **辅助治疗推理逻辑**。要求模型明确指出：是哪一项不良病理特征触发了哪一条NCCN新节点。| OUTPUT | 需被测模型给出推理链。 | - | - |
